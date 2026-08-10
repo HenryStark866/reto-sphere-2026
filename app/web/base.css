@@ -1,0 +1,130 @@
+/* Estilos compartidos por las dos superficies.
+   El diseno visual no se evalua; lo que importa es que el estado del sistema
+   -nivel de criticidad, evidencia citada, latencia- se lea de un vistazo. */
+
+:root {
+  --fondo: #0d1117;
+  --panel: #161b22;
+  --panel-2: #1c2230;
+  --borde: #2a3240;
+  --texto: #e6edf3;
+  --tenue: #8b949e;
+  --acento: #3b82f6;
+  --verde: #2ea043;
+  --amarillo: #d29922;
+  --rojo: #da3633;
+  --radio: 10px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--fondo);
+  color: var(--texto);
+  font: 15px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+a { color: var(--acento); }
+
+header.barra {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px 22px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--borde);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+header.barra h1 { font-size: 17px; margin: 0; font-weight: 600; }
+header.barra nav { margin-left: auto; display: flex; gap: 14px; align-items: center; }
+header.barra nav a { color: var(--tenue); text-decoration: none; font-size: 14px; }
+header.barra nav a:hover, header.barra nav a.activo { color: var(--texto); }
+
+main { padding: 22px; max-width: 1400px; margin: 0 auto; }
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.panel h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: .09em;
+  color: var(--tenue);
+  margin: 0 0 12px;
+  font-weight: 600;
+}
+
+.fila { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+.rejilla-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.crece { flex: 1; min-width: 0; }
+
+button, select, input[type=text], input[type=number] {
+  font: inherit;
+  color: var(--texto);
+  background: var(--panel-2);
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 9px 13px;
+}
+button { cursor: pointer; }
+button:hover:not(:disabled) { border-color: var(--acento); }
+button:disabled { opacity: .45; cursor: not-allowed; }
+button.primario { background: var(--acento); border-color: var(--acento); color: #fff; font-weight: 600; }
+button.peligro { background: transparent; border-color: var(--rojo); color: #ff9d99; }
+button.grande { padding: 16px 26px; font-size: 16px; }
+
+label.campo { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: var(--tenue); }
+
+.insignia {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid;
+}
+.verde    { color: #7ee787; border-color: var(--verde);    background: #2ea04322; }
+.amarillo { color: #e3b341; border-color: var(--amarillo); background: #d2992222; }
+.rojo     { color: #ff7b72; border-color: var(--rojo);     background: #da363322; }
+.neutro   { color: var(--tenue); border-color: var(--borde); background: transparent; }
+
+table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--borde); vertical-align: top; }
+th { color: var(--tenue); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .05em; }
+tbody tr:hover { background: #ffffff06; }
+td.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.tenue { color: var(--tenue); }
+.mono { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 12.5px; }
+.vacio { color: var(--tenue); font-style: italic; padding: 10px 0; }
+
+pre.json {
+  background: #0a0e14;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  padding: 14px;
+  overflow: auto;
+  max-height: 420px;
+  font-family: ui-monospace, Consolas, monospace;
+  font-size: 12.5px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.aviso {
+  border-left: 3px solid var(--amarillo);
+  background: #d2992215;
+  padding: 10px 14px;
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  margin-bottom: 14px;
+}
+.aviso.error { border-color: var(--rojo); background: #da363318; }
+.aviso.ok { border-color: var(--verde); background: #2ea04315; }

@@ -1,0 +1,18 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Sara — seguimiento postoperatorio</title>
+<!--
+  Firebase Hosting exige un directorio publico. Todo el trafico se reescribe a
+  Cloud Run (ver firebase.json), asi que este archivo solo se ve si el rewrite
+  no esta activo: es decir, si el servicio de Cloud Run no esta desplegado.
+-->
+<style>
+  body { font: 16px/1.6 system-ui, sans-serif; max-width: 40rem; margin: 15vh auto; padding: 0 1.5rem;
+         background: #0d1117; color: #e6edf3; }
+  code { background: #1c2230; padding: .15rem .4rem; border-radius: 4px; }
+</style>
+<h1>El servicio no está respondiendo</h1>
+<p>Esta página solo aparece cuando Firebase Hosting no logra reescribir hacia el
+servicio de Cloud Run <code>sara-postop</code>.</p>
+<p>Verifica que el servicio esté desplegado y en la región declarada en
+<code>firebase.json</code>.</p>

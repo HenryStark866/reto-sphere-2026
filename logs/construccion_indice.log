@@ -1,0 +1,219 @@
+INFO Indice cargado: 107 documentos, 6239 fragmentos
+INFO Indice vaciado
+INFO Encontrados 107 archivos en C:\Users\tabor\OneDrive\Escritorio\reto sphere 2026\dataset\textos
+INFO Cargando modelo de embeddings sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2
+INFO Indexado Acute Appendicitis Evidence Based Medicine Guideline.pdf -> 29 fragmentos (procesado)
+INFO [1/107] Acute Appendicitis Evidence Based Medicine Guideline.pdf -> 29 fragmentos
+INFO Indexado Acute Care Surgery Comprehensive Recovery Guide - Appendix Surgery (Appendectomy).pdf -> 5 fragmentos (procesado)
+INFO [2/107] Acute Care Surgery Comprehensive Recovery Guide - Appendix Surgery (Appendectomy).pdf -> 5 fragmentos
+INFO Indexado Adult appendicitis- Clinical practice guidelines from the French Society of Digestive Surgery and the Society of Abdominal and Digestive Imaging.pdf -> 61 fragmentos (procesado)
+INFO [3/107] Adult appendicitis- Clinical practice guidelines from the French Society of Digestive Surgery and the Society of Abdominal and Digestive Imaging.pdf -> 61 fragmentos
+INFO Indexado Apendicitis aguda perforada secundaria a cuerpo extraño- reporte de caso.pdf -> 19 fragmentos (procesado)
+INFO [4/107] Apendicitis aguda perforada secundaria a cuerpo extraño- reporte de caso.pdf -> 19 fragmentos
+INFO Indexado Apendicitis aguda- Hallazgos radiológicos y enfoque actual de las imágenes diagnósticas.pdf -> 48 fragmentos (procesado)
+INFO [5/107] Apendicitis aguda- Hallazgos radiológicos y enfoque actual de las imágenes diagnósticas.pdf -> 48 fragmentos
+INFO Indexado Apendicitis.pdf -> 25 fragmentos (procesado)
+INFO [6/107] Apendicitis.pdf -> 25 fragmentos
+INFO Indexado Appendicitis- Integrating evidence-based nursing care into clinical practice.pdf -> 41 fragmentos (procesado)
+INFO [7/107] Appendicitis- Integrating evidence-based nursing care into clinical practice.pdf -> 41 fragmentos
+INFO Indexado chapter APPENDICITIS.pdf -> 6 fragmentos (procesado)
+INFO [8/107] chapter APPENDICITIS.pdf -> 6 fragmentos
+INFO Indexado Complications after appendectomy in patients with treated appendicitis_ results from a retrospective study.pdf -> 33 fragmentos (procesado)
+INFO [9/107] Complications after appendectomy in patients with treated appendicitis_ results from a retrospective study.pdf -> 33 fragmentos
+INFO Indexado Diagnosis and Management of Acute Appendicitis in Adults A Review.pdf -> 89 fragmentos (procesado)
+INFO [10/107] Diagnosis and Management of Acute Appendicitis in Adults A Review.pdf -> 89 fragmentos
+INFO Indexado diagnóstico, tratamiento y seguimiento del paciente adulto con apendicitis aguda en el Hospital Universitario Nacional de Colombia.pdf -> 153 fragmentos (procesado)
+INFO [11/107] diagnóstico, tratamiento y seguimiento del paciente adulto con apendicitis aguda en el Hospital Universitario Nacional de Colombia.pdf -> 153 fragmentos
+INFO Indexado Disease severity and postoperative complications after appendectomy.pdf -> 35 fragmentos (procesado)
+INFO [12/107] Disease severity and postoperative complications after appendectomy.pdf -> 35 fragmentos
+INFO Indexado Epidemiología de la apendicitis aguda en Colombia Un análisis de las bases de datos administrativas del Ministerio de Salud.pdf -> 32 fragmentos (procesado)
+INFO [13/107] Epidemiología de la apendicitis aguda en Colombia Un análisis de las bases de datos administrativas del Ministerio de Salud.pdf -> 32 fragmentos
+INFO Indexado Establishing the need for clinical follow-up after emergency appendicectomy in the modern era_ Retrospective case series of 145 patients.pdf -> 30 fragmentos (procesado)
+INFO [14/107] Establishing the need for clinical follow-up after emergency appendicectomy in the modern era_ Retrospective case series of 145 patients.pdf -> 30 fragmentos
+INFO Indexado FACTORES ASOCIADOS A LA INCIDENCIA DE APENDICITIS AGUDA COMPLICADA EN LA E.S.E. HOSPITAL UNIVERSITARIO DEL CARIBE.pdf -> 80 fragmentos (procesado)
+INFO [15/107] FACTORES ASOCIADOS A LA INCIDENCIA DE APENDICITIS AGUDA COMPLICADA EN LA E.S.E. HOSPITAL UNIVERSITARIO DEL CARIBE.pdf -> 80 fragmentos
+INFO Indexado Identificación de microorganismos intrabdominales asociados a colección intrabdominal postoperatoria en niños con apendicitis perforada.pdf -> 67 fragmentos (procesado)
+INFO [16/107] Identificación de microorganismos intrabdominales asociados a colección intrabdominal postoperatoria en niños con apendicitis perforada.pdf -> 67 fragmentos
+INFO Indexado Management of complications after appendectomy_ Literature review.pdf -> 39 fragmentos (procesado)
+INFO [17/107] Management of complications after appendectomy_ Literature review.pdf -> 39 fragmentos
+INFO Indexado PLAN DE CUIDADO EN CASA DE PACIENTE EN POSTOPERATORIO DE APENDICECTOMÍA.pdf -> 2 fragmentos (procesado)
+INFO [18/107] PLAN DE CUIDADO EN CASA DE PACIENTE EN POSTOPERATORIO DE APENDICECTOMÍA.pdf -> 2 fragmentos
+INFO Indexado POST OPERATIVE INSTRUCTIONS FOR APPENDECTOMY .pdf -> 3 fragmentos (procesado)
+INFO [19/107] POST OPERATIVE INSTRUCTIONS FOR APPENDECTOMY .pdf -> 3 fragmentos
+INFO Indexado Postoperative antibiotic strategies in acute complicated appendicitis- a systematic review.pdf -> 42 fragmentos (procesado)
+INFO [20/107] Postoperative antibiotic strategies in acute complicated appendicitis- a systematic review.pdf -> 42 fragmentos
+INFO Indexado Postoperative Complications Following Appendectomy- A Single-Center Retrospective Study.pdf -> 36 fragmentos (procesado)
+INFO [21/107] Postoperative Complications Following Appendectomy- A Single-Center Retrospective Study.pdf -> 36 fragmentos
+INFO Indexado Postoperative Infections After Appendectomy for Acute Appendicitis_ The Surgeon’s Checklist.pdf -> 59 fragmentos (procesado)
+INFO [22/107] Postoperative Infections After Appendectomy for Acute Appendicitis_ The Surgeon’s Checklist.pdf -> 59 fragmentos
+INFO Indexado REVISIÓN DE LA LITERATURA SOBRE LAAPENDICITIS AGUDA PEDIATRICA NO ESPECIFICADA EN EL PERI000 2000-2021.pdf -> 0 fragmentos (sin_texto)
+WARNING [23/107] SIN CAPA DE TEXTO: REVISIÓN DE LA LITERATURA SOBRE LAAPENDICITIS AGUDA PEDIATRICA NO ESPECIFICADA EN EL PERI000 2000-2021.pdf
+INFO Indexado Systematic Review and Meta-Analysis of Postoperative Antibiotics for Patients with a Complex Appendicitis.pdf -> 48 fragmentos (procesado)
+INFO [24/107] Systematic Review and Meta-Analysis of Postoperative Antibiotics for Patients with a Complex Appendicitis.pdf -> 48 fragmentos
+INFO Indexado 002-GUIA-DE-CANCER-DE-CUELLO-UTERINO.pdf -> 31 fragmentos (procesado)
+INFO [25/107] 002-GUIA-DE-CANCER-DE-CUELLO-UTERINO.pdf -> 31 fragmentos
+INFO Indexado 1-s2.0-S0360301625060390-main.pdf -> 58 fragmentos (procesado)
+INFO [26/107] 1-s2.0-S0360301625060390-main.pdf -> 58 fragmentos
+INFO Indexado 1-s2.0-S1048891X24221824-main.pdf -> 148 fragmentos (procesado)
+INFO [27/107] 1-s2.0-S1048891X24221824-main.pdf -> 148 fragmentos
+INFO Indexado BOG303-Raul-Murillo.pdf -> 6 fragmentos (procesado)
+INFO [28/107] BOG303-Raul-Murillo.pdf -> 6 fragmentos
+INFO Indexado cervical-es-patient.pdf -> 141 fragmentos (procesado)
+INFO [29/107] cervical-es-patient.pdf -> 141 fragmentos
+INFO Indexado cervix16nov-full.pdf -> 223 fragmentos (procesado)
+INFO [30/107] cervix16nov-full.pdf -> 223 fragmentos
+INFO Indexado curroncol-29-00755.pdf -> 59 fragmentos (procesado)
+INFO [31/107] curroncol-29-00755.pdf -> 59 fragmentos
+INFO Indexado Cáncer-de-Cuello-Uterino-mar_2022.pdf -> 8 fragmentos (procesado)
+INFO [32/107] Cáncer-de-Cuello-Uterino-mar_2022.pdf -> 8 fragmentos
+INFO Indexado Documento.pdf -> 132 fragmentos (procesado)
+INFO [33/107] Documento.pdf -> 132 fragmentos
+INFO Indexado Factors-associated-with-delays-in-time-to-treatment-initiation-in-Colombian-women-with-cervical-cancer.pdf -> 43 fragmentos (procesado)
+INFO [34/107] Factors-associated-with-delays-in-time-to-treatment-initiation-in-Colombian-women-with-cervical-cancer.pdf -> 43 fragmentos
+INFO Indexado fonc-14-1461296.pdf -> 39 fragmentos (procesado)
+INFO [35/107] fonc-14-1461296.pdf -> 39 fragmentos
+INFO Indexado fsurg-12-1588558.pdf -> 41 fragmentos (procesado)
+INFO [36/107] fsurg-12-1588558.pdf -> 41 fragmentos
+INFO Indexado gom226c.pdf -> 30 fragmentos (procesado)
+INFO [37/107] gom226c.pdf -> 30 fragmentos
+INFO Indexado Herramientas-Tecnica-Cancer-cuello-uterino-2018.pdf -> 28 fragmentos (procesado)
+INFO [38/107] Herramientas-Tecnica-Cancer-cuello-uterino-2018.pdf -> 28 fragmentos
+INFO Indexado ijgm-18-6073.pdf -> 48 fragmentos (procesado)
+INFO [39/107] ijgm-18-6073.pdf -> 48 fragmentos
+INFO Indexado Intl J Gynecology   Obste - 2025 - Bhatla - Cancer of the cervix uteri  2025 update.pdf -> 143 fragmentos (procesado)
+INFO [40/107] Intl J Gynecology   Obste - 2025 - Bhatla - Cancer of the cervix uteri  2025 update.pdf -> 143 fragmentos
+INFO Indexado main.pdf -> 105 fragmentos (procesado)
+INFO [41/107] main.pdf -> 105 fragmentos
+INFO Indexado prevencion-cancer-cuello-uterino.pdf -> 4 fragmentos (procesado)
+INFO [42/107] prevencion-cancer-cuello-uterino.pdf -> 4 fragmentos
+INFO Indexado Terapéutica+del+cáncer+de+cuello+uterino,+una+revisión+de+la+literatura.pdf -> 69 fragmentos (procesado)
+INFO [43/107] Terapéutica+del+cáncer+de+cuello+uterino,+una+revisión+de+la+literatura.pdf -> 69 fragmentos
+INFO Indexado Analysis of deficiencies in care following cholecystectomy.pdf -> 31 fragmentos (procesado)
+INFO [44/107] Analysis of deficiencies in care following cholecystectomy.pdf -> 31 fragmentos
+INFO Indexado Colecistectomía subtotal en patología biliar complicada.pdf -> 35 fragmentos (procesado)
+INFO [45/107] Colecistectomía subtotal en patología biliar complicada.pdf -> 35 fragmentos
+INFO Indexado Colelitiasis y colecistitis aguda.pdf -> 28 fragmentos (procesado)
+INFO [46/107] Colelitiasis y colecistitis aguda.pdf -> 28 fragmentos
+INFO Indexado CUIDADO ESTANDARIZADO EN EL PACIENTE QUIRURGICO CON ALTERACIONES EN LA FUNCION GASTROINTESTINAL.pdf -> 97 fragmentos (procesado)
+INFO [47/107] CUIDADO ESTANDARIZADO EN EL PACIENTE QUIRURGICO CON ALTERACIONES EN LA FUNCION GASTROINTESTINAL.pdf -> 97 fragmentos
+INFO Indexado Diagnóstico y tratamiento del paciente con colecistitis aguda calculosa en el Hospital Universitario Nacional de Colombia .pdf -> 168 fragmentos (procesado)
+INFO [48/107] Diagnóstico y tratamiento del paciente con colecistitis aguda calculosa en el Hospital Universitario Nacional de Colombia .pdf -> 168 fragmentos
+INFO Indexado Estándar Clínico Basado en la Evidencia- Diagnóstico y tratamiento del paciente con colecistitis aguda calculosa en el Hospital Universitario Nacional.pdf -> 94 fragmentos (procesado)
+INFO [49/107] Estándar Clínico Basado en la Evidencia- Diagnóstico y tratamiento del paciente con colecistitis aguda calculosa en el Hospital Universitario Nacional.pdf -> 94 fragmentos
+INFO Indexado Evaluation of Post-cholecystectomy Syndrome in Patients With Gallstone Disease- A Critical Appraisal.pdf -> 35 fragmentos (procesado)
+INFO [50/107] Evaluation of Post-cholecystectomy Syndrome in Patients With Gallstone Disease- A Critical Appraisal.pdf -> 35 fragmentos
+INFO Indexado GUIA COLECISTITIS AGUDA.pdf -> 8 fragmentos (procesado)
+INFO [51/107] GUIA COLECISTITIS AGUDA.pdf -> 8 fragmentos
+INFO Indexado How to Predict Postoperative Complications After Early Laparoscopic Cholecystectomy for Acute Cholecystitis- the Chole-Risk Score.pdf -> 43 fragmentos (procesado)
+INFO [52/107] How to Predict Postoperative Complications After Early Laparoscopic Cholecystectomy for Acute Cholecystitis- the Chole-Risk Score.pdf -> 43 fragmentos
+INFO Indexado Non-programmed rehospitalizations after cholecystectomy.pdf -> 47 fragmentos (procesado)
+INFO [53/107] Non-programmed rehospitalizations after cholecystectomy.pdf -> 47 fragmentos
+INFO Indexado PLAN DE CUIDADO COLECISTECTOMIA.pdf -> 5 fragmentos (procesado)
+INFO [54/107] PLAN DE CUIDADO COLECISTECTOMIA.pdf -> 5 fragmentos
+INFO Indexado Post-cholecystectomy syndrome in patients undergoing laparoscopic cholecystectomy .pdf -> 24 fragmentos (procesado)
+INFO [55/107] Post-cholecystectomy syndrome in patients undergoing laparoscopic cholecystectomy .pdf -> 24 fragmentos
+INFO Indexado Postcholecystectomy syndrome - management and treatment.pdf -> 30 fragmentos (procesado)
+INFO [56/107] Postcholecystectomy syndrome - management and treatment.pdf -> 30 fragmentos
+INFO Indexado Postoperative care for patients undergoing cholecystectomy- A comprehensive nursing review.pdf -> 51 fragmentos (procesado)
+INFO [57/107] Postoperative care for patients undergoing cholecystectomy- A comprehensive nursing review.pdf -> 51 fragmentos
+INFO Indexado Postoperative Outcomes Following Cholecystectomy- A Nationwide Analysis.pdf -> 31 fragmentos (procesado)
+INFO [58/107] Postoperative Outcomes Following Cholecystectomy- A Nationwide Analysis.pdf -> 31 fragmentos
+INFO Indexado Risk Factors Associated with Post-Cholecystectomy Syndrome and Insights into Post-Surgical Follow-Up- Retrospective Cohort Study.pdf -> 42 fragmentos (procesado)
+INFO [59/107] Risk Factors Associated with Post-Cholecystectomy Syndrome and Insights into Post-Surgical Follow-Up- Retrospective Cohort Study.pdf -> 42 fragmentos
+INFO Indexado Safe postoperative outcomes following early cholecystectomy for acute calculus cholecystitis regardless of symptom onset.pdf -> 35 fragmentos (procesado)
+INFO [60/107] Safe postoperative outcomes following early cholecystectomy for acute calculus cholecystitis regardless of symptom onset.pdf -> 35 fragmentos
+INFO Indexado A Guide to Enhancing Your Recovery After Bowel Surgery (ERAS).pdf -> 42 fragmentos (procesado)
+INFO [61/107] A Guide to Enhancing Your Recovery After Bowel Surgery (ERAS).pdf -> 42 fragmentos
+INFO Indexado A Review of Postoperative Complications in Colon Cancer Surgery The Need for Patient Centered Therapy.pdf -> 77 fragmentos (procesado)
+INFO [62/107] A Review of Postoperative Complications in Colon Cancer Surgery The Need for Patient Centered Therapy.pdf -> 77 fragmentos
+INFO Indexado Actualización en la tamización del cáncer colorrectal.pdf -> 45 fragmentos (procesado)
+INFO [63/107] Actualización en la tamización del cáncer colorrectal.pdf -> 45 fragmentos
+INFO Indexado Analyzing postoperative complications in colorectal cancer surgery- a systematic review enhanced by artificial intelligence.pdf -> 67 fragmentos (procesado)
+INFO [64/107] Analyzing postoperative complications in colorectal cancer surgery- a systematic review enhanced by artificial intelligence.pdf -> 67 fragmentos
+INFO Indexado Colon Cancer Care Before and After Surgery.pdf -> 4 fragmentos (procesado)
+INFO [65/107] Colon Cancer Care Before and After Surgery.pdf -> 4 fragmentos
+INFO Indexado Colon Cancer Surgery and Recovery.pdf -> 22 fragmentos (procesado)
+INFO [66/107] Colon Cancer Surgery and Recovery.pdf -> 22 fragmentos
+INFO Indexado Colorectal Cancer- Postoperative Follow-up and Surveillance.pdf -> 20 fragmentos (procesado)
+INFO [67/107] Colorectal Cancer- Postoperative Follow-up and Surveillance.pdf -> 20 fragmentos
+INFO Indexado Determinación de los factores predictivos para complicaciones en cirugía electiva de pacientes con cáncer colorrectal. Experiencia del Instituto de Cancerología Las Américas Auna (Colombia, 2016-2019).pdf -> 42 fragmentos (procesado)
+INFO [68/107] Determinación de los factores predictivos para complicaciones en cirugía electiva de pacientes con cáncer colorrectal. Experiencia del Instituto de Cancerología Las Américas Auna (Colombia, 2016-2019).pdf -> 42 fragmentos
+INFO Indexado Diagnóstico, estadificación, tratamiento y seguimiento del paciente adulto con cáncer de colon en el Hospital Universitario Nacional de Colombia.pdf -> 187 fragmentos (procesado)
+INFO [69/107] Diagnóstico, estadificación, tratamiento y seguimiento del paciente adulto con cáncer de colon en el Hospital Universitario Nacional de Colombia.pdf -> 187 fragmentos
+INFO Indexado ecommendations for follow‑up of colorectal cancer survivors.pdf -> 54 fragmentos (procesado)
+INFO [70/107] ecommendations for follow‑up of colorectal cancer survivors.pdf -> 54 fragmentos
+INFO Indexado Efecto de la implementación de las recomendaciones del protocolo de recuperación mejorada después de cirugía (ERAS) en cirugía colorrectal en un hospital de referencia del suroccidente colombiano.pdf -> 56 fragmentos (procesado)
+INFO [71/107] Efecto de la implementación de las recomendaciones del protocolo de recuperación mejorada después de cirugía (ERAS) en cirugía colorrectal en un hospital de referencia del suroccidente colombiano.pdf -> 56 fragmentos
+INFO Indexado Effects of comprehensive care on psychological emotions, postoperative rehabilitation and complications of colorectal cancer patients after colostomy.pdf -> 33 fragmentos (procesado)
+INFO [72/107] Effects of comprehensive care on psychological emotions, postoperative rehabilitation and complications of colorectal cancer patients after colostomy.pdf -> 33 fragmentos
+INFO Indexado Experiencia en cirugía colorrectal en un hospital de cuarto nivel de complejidad en Bogotá, Colombia.pdf -> 32 fragmentos (procesado)
+INFO [73/107] Experiencia en cirugía colorrectal en un hospital de cuarto nivel de complejidad en Bogotá, Colombia.pdf -> 32 fragmentos
+INFO Indexado GUÍA DE MANEJO PARA EL DIAGNÓSTICO, TRATAMIENTO, SEGUIMIENTO Y PALIACIÓN DEL CÁNCER DE COLON Y RECTO.pdf -> 770 fragmentos (procesado)
+INFO [74/107] GUÍA DE MANEJO PARA EL DIAGNÓSTICO, TRATAMIENTO, SEGUIMIENTO Y PALIACIÓN DEL CÁNCER DE COLON Y RECTO.pdf -> 770 fragmentos
+INFO Indexado Health self-management experiences of colorectal cancer patients in postoperative recovery- A qualitative study.pdf -> 52 fragmentos (procesado)
+INFO [75/107] Health self-management experiences of colorectal cancer patients in postoperative recovery- A qualitative study.pdf -> 52 fragmentos
+INFO Indexado Post-operative Surveillance Following Curative Resection of Colorectal Cancer in the Elderly Population in the United Kingdom- An Observational Study.pdf -> 30 fragmentos (procesado)
+INFO [76/107] Post-operative Surveillance Following Curative Resection of Colorectal Cancer in the Elderly Population in the United Kingdom- An Observational Study.pdf -> 30 fragmentos
+INFO Indexado Programa de automanejo en adultos con cáncer colorrectal- estudio piloto.pdf -> 49 fragmentos (procesado)
+INFO [77/107] Programa de automanejo en adultos con cáncer colorrectal- estudio piloto.pdf -> 49 fragmentos
+INFO Indexado Protocolo de recuperación mejorada después de cirugía (ERAS) atenúa el estrés y acelera la recuperación en pacientes después de resección radical por cáncer colorrectal- Experiencia en la Clínica Universitaria Colombia.pdf -> 50 fragmentos (procesado)
+INFO [78/107] Protocolo de recuperación mejorada después de cirugía (ERAS) atenúa el estrés y acelera la recuperación en pacientes después de resección radical por cáncer colorrectal- Experiencia en la Clínica Universitaria Colombia.pdf -> 50 fragmentos
+INFO Indexado Recommendations for follow‑up of colorectal cancer survivors.pdf -> 54 fragmentos (procesado)
+INFO [79/107] Recommendations for follow‑up of colorectal cancer survivors.pdf -> 54 fragmentos
+INFO Indexado Remote Follow‐Up After Colorectal Cancer Surgery- A Systematic Review.pdf -> 41 fragmentos (procesado)
+INFO [80/107] Remote Follow‐Up After Colorectal Cancer Surgery- A Systematic Review.pdf -> 41 fragmentos
+INFO Indexado Supervised Home-Based Exercise Intervention in Colorectal Cancer Patients Following Surgery- A Feasibility Study.pdf -> 109 fragmentos (procesado)
+INFO [81/107] Supervised Home-Based Exercise Intervention in Colorectal Cancer Patients Following Surgery- A Feasibility Study.pdf -> 109 fragmentos
+INFO Indexado Supervivencia de cáncer colorrectal en un centro oncológico de Colombia. Estudio de cohorte histórica.pdf -> 53 fragmentos (procesado)
+INFO [82/107] Supervivencia de cáncer colorrectal en un centro oncológico de Colombia. Estudio de cohorte histórica.pdf -> 53 fragmentos
+INFO Indexado The clinical impacts of postoperative complications after colon cancer surgery for the clinical course of adjuvant treatment and survival.pdf -> 37 fragmentos (procesado)
+INFO [83/107] The clinical impacts of postoperative complications after colon cancer surgery for the clinical course of adjuvant treatment and survival.pdf -> 37 fragmentos
+INFO Indexado The Role of Postoperative Surveillance in Colorectal Cancer.pdf -> 26 fragmentos (procesado)
+INFO [84/107] The Role of Postoperative Surveillance in Colorectal Cancer.pdf -> 26 fragmentos
+INFO Indexado Your Follow-up Care after Colorectal Cancer.pdf -> 8 fragmentos (procesado)
+INFO [85/107] Your Follow-up Care after Colorectal Cancer.pdf -> 8 fragmentos
+INFO Indexado Artroplastia total de rodilla- vías de abordaje pararrotuliana medial y ampliada.pdf -> 55 fragmentos (procesado)
+INFO [86/107] Artroplastia total de rodilla- vías de abordaje pararrotuliana medial y ampliada.pdf -> 55 fragmentos
+INFO Indexado Artroplastía total de rodilla- grado de funcionalidad postoperatoria en adultos.pdf -> 23 fragmentos (procesado)
+INFO [87/107] Artroplastía total de rodilla- grado de funcionalidad postoperatoria en adultos.pdf -> 23 fragmentos
+INFO Indexado Care dependency and postoperative recovery after total knee arthroplasty a cross-sectional study.pdf -> 60 fragmentos (procesado)
+INFO [88/107] Care dependency and postoperative recovery after total knee arthroplasty a cross-sectional study.pdf -> 60 fragmentos
+INFO Indexado Eficacia de diferentes técnicas de analgesiamultimodal para la prevención de dolormoderado a severo en reemplazo totalprimario de rodilla.pdf -> 45 fragmentos (procesado)
+INFO [89/107] Eficacia de diferentes técnicas de analgesiamultimodal para la prevención de dolormoderado a severo en reemplazo totalprimario de rodilla.pdf -> 45 fragmentos
+INFO Indexado Enhanced recovery after surgery (ERAS) protocols for total joint replacement surgery.pdf -> 33 fragmentos (procesado)
+INFO [90/107] Enhanced recovery after surgery (ERAS) protocols for total joint replacement surgery.pdf -> 33 fragmentos
+INFO Indexado Enhanced recovery after surgery in patients after hip and knee arthroplasty- a systematic review and meta-analysis.pdf -> 75 fragmentos (procesado)
+INFO [91/107] Enhanced recovery after surgery in patients after hip and knee arthroplasty- a systematic review and meta-analysis.pdf -> 75 fragmentos
+INFO Indexado FACTORES ASOCIADOS CON LA INSATISFACCIÓN DE LOS PACIENTES EN LOS RESULTADOS QUIRÚRGICOS DE REEMPLAZO TOTAL DE RODILLA A LOS 3 Y 6 MESES POSOPERATORIOS..pdf -> 162 fragmentos (procesado)
+INFO [92/107] FACTORES ASOCIADOS CON LA INSATISFACCIÓN DE LOS PACIENTES EN LOS RESULTADOS QUIRÚRGICOS DE REEMPLAZO TOTAL DE RODILLA A LOS 3 Y 6 MESES POSOPERATORIOS..pdf -> 162 fragmentos
+INFO Indexado Impact of Outpatient Total Joint Replacement on Postoperative Outcomes.pdf -> 43 fragmentos (procesado)
+INFO [93/107] Impact of Outpatient Total Joint Replacement on Postoperative Outcomes.pdf -> 43 fragmentos
+INFO Indexado MANEJO DE LAS COMPLICACIONES DE POSTOPERATORIO DE REEMPLAZO DE CADERA A TRAVÉS DE LA TELEMEDICINA.pdf -> 41 fragmentos (procesado)
+INFO [94/107] MANEJO DE LAS COMPLICACIONES DE POSTOPERATORIO DE REEMPLAZO DE CADERA A TRAVÉS DE LA TELEMEDICINA.pdf -> 41 fragmentos
+INFO Indexado ncidence and timing of postoperative complications after total hip and knee arthroplasty.pdf -> 33 fragmentos (procesado)
+INFO [95/107] ncidence and timing of postoperative complications after total hip and knee arthroplasty.pdf -> 33 fragmentos
+INFO Indexado Niveles de dolor, rigidez y funcionalidad en reemplazo primario de rodilla o cadera- en un Hospital de alta complejidad de Manizales (Caldas), 2023.pdf -> 87 fragmentos (procesado)
+INFO [96/107] Niveles de dolor, rigidez y funcionalidad en reemplazo primario de rodilla o cadera- en un Hospital de alta complejidad de Manizales (Caldas), 2023.pdf -> 87 fragmentos
+INFO Indexado Orthopaedic Surgery - 2019 - Li - Postoperative Pain Management in Total Knee Arthroplasty.pdf -> 45 fragmentos (procesado)
+INFO [97/107] Orthopaedic Surgery - 2019 - Li - Postoperative Pain Management in Total Knee Arthroplasty.pdf -> 45 fragmentos
+INFO Indexado PLAN CASERO REEMPLAZO TOTAL DE RODILLA.pdf -> 7 fragmentos (procesado)
+INFO [98/107] PLAN CASERO REEMPLAZO TOTAL DE RODILLA.pdf -> 7 fragmentos
+INFO Indexado Postoperative Pain Management in Total Knee Arthroplasty.pdf -> 42 fragmentos (procesado)
+INFO [99/107] Postoperative Pain Management in Total Knee Arthroplasty.pdf -> 42 fragmentos
+INFO Indexado Pre- and Post-Operative Rehabilitation Interventions in Patients at Risk of Poor Outcomes Following Knee or Hip Arthroplasty- Protocol for Two Systematic Reviews.pdf -> 45 fragmentos (procesado)
+INFO [100/107] Pre- and Post-Operative Rehabilitation Interventions in Patients at Risk of Poor Outcomes Following Knee or Hip Arthroplasty- Protocol for Two Systematic Reviews.pdf -> 45 fragmentos
+INFO Indexado PROGRAMA DE PROFUNDIZACIÓN Y ENTRENAMIENTO AVANZADO EN REEMPLAZO ARTICULAR.pdf -> 13 fragmentos (procesado)
+INFO [101/107] PROGRAMA DE PROFUNDIZACIÓN Y ENTRENAMIENTO AVANZADO EN REEMPLAZO ARTICULAR.pdf -> 13 fragmentos
+INFO Indexado Recom endaciones Programa Reemplazo Articular de Rodilla.pdf -> 17 fragmentos (procesado)
+INFO [102/107] Recom endaciones Programa Reemplazo Articular de Rodilla.pdf -> 17 fragmentos
+INFO Indexado Recovery and the use of postoperative physical therapy after total hip or knee replacement.pdf -> 60 fragmentos (procesado)
+INFO [103/107] Recovery and the use of postoperative physical therapy after total hip or knee replacement.pdf -> 60 fragmentos
+INFO Indexado Reemplazo total de cadera Guía para el paciente .pdf -> 80 fragmentos (procesado)
+INFO [104/107] Reemplazo total de cadera Guía para el paciente .pdf -> 80 fragmentos
+INFO Indexado Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf -> 74 fragmentos (procesado)
+INFO [105/107] Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf -> 74 fragmentos
+INFO Indexado Total Hip Arthroplasty in Patients with BMI ≥ 30 kg_m2.pdf -> 53 fragmentos (procesado)
+INFO [106/107] Total Hip Arthroplasty in Patients with BMI ≥ 30 kg_m2.pdf -> 53 fragmentos
+INFO Indexado What’s important for recovery after a total knee replacement_ A systematic review of mixed methods studies.pdf -> 44 fragmentos (procesado)
+INFO [107/107] What’s important for recovery after a total knee replacement_ A systematic review of mixed methods studies.pdf -> 44 fragmentos
+INFO Listo en 345.4s | indexados=107 duplicados=0 sin_texto=1 ilegibles=0 | 107 documentos, 6239 fragmentos, dim=384

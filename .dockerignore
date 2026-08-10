@@ -1,0 +1,14 @@
+.venv/
+.modelos/
+__pycache__/
+**/__pycache__/
+*.pyc
+.git/
+.env
+data/
+logs/
+docs/
+dataset/textos/
+*.md
+!README.md
+.claude/

@@ -1,0 +1,640 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Llamada de seguimiento</title>
+<link rel="stylesheet" href="/static/base.css">
+<style>
+  .columnas { display: grid; grid-template-columns: 1fr 400px; gap: 16px; align-items: start; }
+  @media (max-width: 1100px) { .columnas { grid-template-columns: 1fr; } }
+
+  #transcripcion { height: 46vh; min-height: 300px; overflow-y: auto; padding-right: 6px; }
+  .burbuja { max-width: 82%; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px; font-size: 14.5px; }
+  .burbuja.agente { background: var(--panel-2); border: 1px solid var(--borde); border-bottom-left-radius: 4px; }
+  .burbuja.paciente { background: #1f3a5f; margin-left: auto; border-bottom-right-radius: 4px; }
+  .burbuja .quien { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--tenue); margin-bottom: 3px; }
+
+  #microfono {
+    width: 100%; padding: 20px; font-size: 17px; font-weight: 600;
+    border-radius: 12px; border: 2px solid var(--borde); background: var(--panel-2);
+    user-select: none; -webkit-user-select: none; touch-action: none;
+  }
+  #microfono.grabando { background: #da363325; border-color: var(--rojo); color: #ff9d99; }
+  #microfono.ocupado  { background: var(--panel-2); border-color: var(--acento); color: var(--acento); }
+
+  #nivel { font-size: 26px; font-weight: 700; letter-spacing: .04em; }
+  .dato { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0;
+          border-bottom: 1px dashed var(--borde); font-size: 13.5px; }
+  .dato:last-child { border-bottom: none; }
+  .dato .k { color: var(--tenue); }
+  .bandera { font-size: 13px; padding: 5px 9px; border-radius: 6px; margin-bottom: 5px; }
+  .bandera.r { background: #da363320; border-left: 3px solid var(--rojo); }
+  .bandera.a { background: #d2992218; border-left: 3px solid var(--amarillo); }
+  .cita { font-size: 12.5px; padding: 6px 0; border-bottom: 1px dashed var(--borde); }
+  .barra-nivel { height: 4px; border-radius: 2px; margin-bottom: 12px; }
+  .pendiente { display: inline-block; padding: 2px 8px; border: 1px dashed var(--borde);
+               border-radius: 999px; font-size: 12px; color: var(--tenue); margin: 0 4px 4px 0; }
+</style>
+</head>
+<body>
+<header class="barra">
+  <h1>Llamada de seguimiento postoperatorio</h1>
+  <nav>
+    <a href="/">Inicio</a>
+    <a href="/consola">Consola</a>
+    <a href="/llamada" class="activo">Llamada</a>
+  </nav>
+</header>
+
+<main>
+  <div id="avisos"></div>
+
+  <!-- --------------------------------------------------------- preparacion -->
+  <div class="panel" id="panel-inicio">
+    <h2>Iniciar llamada</h2>
+    <div class="fila">
+      <label class="campo crece" style="min-width:340px">Paciente
+        <select id="paciente"><option>Cargando...</option></select>
+      </label>
+      <label class="campo">Dia postoperatorio
+        <select id="dia"></select>
+      </label>
+      <label class="campo">Modo del microfono
+        <select id="modo">
+          <option value="auto">Automatico (detecta el silencio)</option>
+          <option value="pulsar">Mantener pulsado para hablar</option>
+        </select>
+      </label>
+      <button class="primario grande" id="btn-iniciar" onclick="iniciarLlamada()">Iniciar llamada</button>
+    </div>
+    <div id="ficha" class="tenue" style="margin-top:12px; font-size:13.5px"></div>
+  </div>
+
+  <div class="columnas" id="panel-llamada" style="display:none">
+    <!-- ------------------------------------------------------ conversacion -->
+    <div>
+      <div class="panel">
+        <h2>Conversacion</h2>
+        <div id="transcripcion"></div>
+      </div>
+
+      <div class="panel">
+        <button id="microfono">Iniciar llamada primero</button>
+        <div class="fila" style="margin-top:12px">
+          <input type="text" id="texto-manual" class="crece"
+                 placeholder="Respaldo sin microfono: escribe lo que diria el paciente y pulsa Enter"
+                 onkeydown="if(event.key==='Enter') enviarTexto()">
+          <button onclick="enviarTexto()">Enviar</button>
+          <button class="peligro" onclick="finalizar()">Finalizar llamada</button>
+        </div>
+        <div class="tenue" style="margin-top:10px; font-size:12.5px" id="pie-metricas"></div>
+      </div>
+    </div>
+
+    <!-- ------------------------------------------------------------ estado -->
+    <div>
+      <div class="panel">
+        <h2>Decision del agente</h2>
+        <div class="barra-nivel" id="barra-nivel" style="background:var(--borde)"></div>
+        <div id="nivel" class="tenue">SIN DATOS</div>
+        <div id="motivo" class="tenue" style="font-size:13px; margin-top:4px">Esperando el primer turno.</div>
+        <div id="origen" class="tenue mono" style="font-size:11.5px; margin-top:6px"></div>
+      </div>
+
+      <div class="panel">
+        <h2>Banderas activas</h2>
+        <div id="banderas"><span class="vacio">Ninguna.</span></div>
+      </div>
+
+      <div class="panel">
+        <h2>Estado clinico recogido</h2>
+        <div id="estado-clinico"><span class="vacio">Nada todavia.</span></div>
+        <div style="margin-top:10px">
+          <div class="tenue" style="font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; margin-bottom:5px">Temas pendientes</div>
+          <div id="pendientes"></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Evidencia citada</h2>
+        <div id="citas"><span class="vacio">El agente aun no ha citado el corpus.</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-resumen" style="display:none">
+    <h2>Resumen estructurado de la llamada</h2>
+    <div id="resumen-legible"></div>
+    <details style="margin-top:12px">
+      <summary class="tenue" style="cursor:pointer; font-size:13px">Ver el registro completo en JSON</summary>
+      <pre class="json" id="resumen-json" style="margin-top:10px"></pre>
+    </details>
+  </div>
+</main>
+
+<script>
+// ---------------------------------------------------------------------------
+// Estado del cliente
+// ---------------------------------------------------------------------------
+const S = {
+  llamadaId: null,
+  pacientes: [],
+  modo: 'auto',
+  stream: null,
+  grabadora: null,
+  trozos: [],
+  grabando: false,
+  procesando: false,
+  t0: null,            // instante en que el paciente termina de hablar
+  msPrimeraVoz: null,  // latencia hasta que la voz del agente empieza a sonar
+  turnoFin: null,
+  vozAgente: null,
+  colaVoz: 0,
+  burbujaAgente: null,
+};
+
+const ETIQUETAS = {
+  dolor_nrs: 'Dolor (0-10)', dolor_subito_severo: 'Dolor subito severo',
+  fiebre_c: 'Temperatura', fiebre_subjetiva: 'Fiebre referida', herida: 'Herida',
+  movilidad: 'Movilidad', apetito: 'Apetito', sueno: 'Sueno', disnea: 'Disnea',
+  dolor_toracico: 'Dolor toracico', vomito_persistente: 'Vomito persistente',
+  intolerancia_oral: 'Intolerancia oral', sin_gases_ni_deposicion: 'Sin gases ni deposicion',
+  signos_tvp: 'Signos de TVP', ictericia: 'Ictericia', sincope: 'Sincope', confusion: 'Confusion',
+};
+
+const escapar = t => String(t ?? '').replace(/[&<>"]/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+function avisar(html, clase = '') {
+  document.getElementById('avisos').innerHTML = `<div class="aviso ${clase}">${html}</div>`;
+}
+const limpiarAvisos = () => document.getElementById('avisos').innerHTML = '';
+
+// ---------------------------------------------------------------------------
+// Pacientes
+// ---------------------------------------------------------------------------
+fetch('/api/pacientes').then(r => r.json()).then(d => {
+  S.pacientes = d.pacientes;
+  const sel = document.getElementById('paciente');
+  sel.innerHTML = d.pacientes.map(p =>
+    `<option value="${p.paciente_id}">${escapar(p.nombre_completo)} — ${escapar(p.procedimiento)}</option>`).join('');
+  const dias = document.getElementById('dia');
+  dias.innerHTML = d.dias_postop.map(x => `<option value="${x}">Dia ${x}</option>`).join('');
+  sel.onchange = pintarFicha;
+  pintarFicha();
+});
+
+function pacienteActual() {
+  return S.pacientes.find(p => p.paciente_id === document.getElementById('paciente').value);
+}
+
+function pintarFicha() {
+  const p = pacienteActual();
+  if (!p) return;
+  document.getElementById('dia').value = p.dia_postop_sugerido;
+  document.getElementById('ficha').innerHTML = `
+    ${p.edad} anos · ${escapar(p.genero)} · ${escapar(p.ciudad)}, ${escapar(p.departamento)} ·
+    EPS ${escapar(p.eps)} · cirugia el ${escapar(p.fecha_cirugia)} ·
+    escenario del corpus <span class="mono">${escapar(p.escenario)}</span><br>
+    Comorbilidades: ${p.comorbilidades.length ? escapar(p.comorbilidades.join(', ')) : 'ninguna registrada'}`;
+}
+
+// ---------------------------------------------------------------------------
+// Sintesis de voz
+// ---------------------------------------------------------------------------
+function elegirVoz() {
+  const voces = speechSynthesis.getVoices();
+  if (!voces.length) return;
+  // Se prefiere una voz colombiana; si no la hay, cualquier voz en espanol.
+  S.vozAgente = voces.find(v => v.lang === 'es-CO')
+    || voces.find(v => ['es-MX', 'es-US', 'es-AR'].includes(v.lang))
+    || voces.find(v => v.lang.startsWith('es'))
+    || null;
+}
+speechSynthesis.onvoiceschanged = elegirVoz;
+elegirVoz();
+
+function hablar(texto) {
+  if (!texto.trim()) return;
+  const u = new SpeechSynthesisUtterance(texto);
+  u.lang = 'es-CO';
+  if (S.vozAgente) u.voice = S.vozAgente;
+  u.rate = 1.05;
+
+  S.colaVoz++;
+  u.onstart = () => {
+    // La rubrica mide hasta aqui: el instante en que el paciente empieza a oir.
+    if (S.t0 !== null && S.msPrimeraVoz === null) {
+      S.msPrimeraVoz = performance.now() - S.t0;
+      reportarLatencia();
+    }
+  };
+  u.onend = u.onerror = () => {
+    S.colaVoz--;
+    if (S.colaVoz <= 0 && !S.procesando) finTurnoAgente();
+  };
+  speechSynthesis.speak(u);
+}
+
+function reportarLatencia() {
+  if (S.msPrimeraVoz === null || S.turnoFin === null || !S.llamadaId) return;
+  fetch(`/api/llamadas/${S.llamadaId}/latencia`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ turno: S.turnoFin, ms_e2e: S.msPrimeraVoz }),
+  }).catch(() => {});
+  document.getElementById('pie-metricas').innerHTML +=
+    ` · <b>${Math.round(S.msPrimeraVoz)} ms</b> hasta la voz`;
+  S.turnoFin = null;
+}
+
+function finTurnoAgente() {
+  // En modo automatico el microfono se rearma solo cuando el agente termino de
+  // hablar: si se rearmara antes, grabaria la propia voz del agente.
+  if (S.modo === 'auto' && S.llamadaId) armarAuto();
+  else pintarBoton();
+}
+
+// ---------------------------------------------------------------------------
+// Llamada
+// ---------------------------------------------------------------------------
+async function iniciarLlamada() {
+  const p = pacienteActual();
+  if (!p) return;
+  document.getElementById('btn-iniciar').disabled = true;
+  S.modo = document.getElementById('modo').value;
+  limpiarAvisos();
+
+  try {
+    const r = await fetch('/api/llamadas', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ paciente_id: p.paciente_id, dia_postop: +document.getElementById('dia').value }),
+    });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.detail || 'No se pudo iniciar');
+
+    S.llamadaId = d.llamada_id;
+    document.getElementById('panel-llamada').style.display = '';
+    document.getElementById('panel-resumen').style.display = 'none';
+    document.getElementById('transcripcion').innerHTML = '';
+    document.getElementById('paciente').disabled = true;
+    document.getElementById('dia').disabled = true;
+
+    burbuja('agente', d.saludo);
+    await prepararMicrofono();
+    hablar(d.saludo);
+  } catch (e) {
+    avisar(`No se pudo iniciar la llamada: ${escapar(e.message)}`, 'error');
+    document.getElementById('btn-iniciar').disabled = false;
+  }
+}
+
+async function prepararMicrofono() {
+  if (S.stream) return true;
+  try {
+    S.stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+    });
+    if (S.modo === 'pulsar') configurarPulsar();
+    pintarBoton();
+    return true;
+  } catch (e) {
+    avisar(`Sin acceso al microfono (${escapar(e.name)}). Puedes seguir la llamada
+            escribiendo en el campo de respaldo.`, '');
+    document.getElementById('microfono').disabled = true;
+    document.getElementById('microfono').textContent = 'Microfono no disponible';
+    return false;
+  }
+}
+
+function tipoSoportado() {
+  return ['audio/webm;codecs=opus', 'audio/webm', 'audio/mp4', 'audio/ogg;codecs=opus']
+    .find(t => MediaRecorder.isTypeSupported(t)) || '';
+}
+
+function empezarGrabacion() {
+  if (S.grabando || S.procesando || !S.stream) return;
+  const tipo = tipoSoportado();
+  S.grabadora = new MediaRecorder(S.stream, tipo ? { mimeType: tipo } : undefined);
+  S.trozos = [];
+  S.grabadora.ondataavailable = e => { if (e.data.size) S.trozos.push(e.data); };
+  S.grabadora.onstop = () => {
+    const blob = new Blob(S.trozos, { type: tipo || 'audio/webm' });
+    // Un blob diminuto es ruido o un clic accidental, no una frase.
+    if (blob.size < 2000) { pintarBoton(); if (S.modo === 'auto') armarAuto(); return; }
+    S.t0 = performance.now();
+    enviarTurno(blob);
+  };
+  S.grabadora.start();
+  S.grabando = true;
+  pintarBoton();
+}
+
+function detenerGrabacion() {
+  if (!S.grabando) return;
+  S.grabando = false;
+  try { S.grabadora.stop(); } catch (e) { /* ya estaba detenida */ }
+}
+
+// --- modo automatico: se corta cuando el paciente lleva ~1,2 s en silencio ---
+function armarAuto() {
+  if (S.modo !== 'auto' || S.procesando || !S.stream) return;
+  empezarGrabacion();
+
+  const ctx = new (window.AudioContext || window.webkitAudioContext)();
+  const fuente = ctx.createMediaStreamSource(S.stream);
+  const analizador = ctx.createAnalyser();
+  analizador.fftSize = 1024;
+  fuente.connect(analizador);
+  const datos = new Float32Array(analizador.fftSize);
+
+  const UMBRAL = 0.015;      // RMS por encima del ruido de fondo tipico
+  const SILENCIO_MS = 1200;  // margen para las pausas naturales del habla
+  const MAX_MS = 30000;      // tope duro por si el silencio nunca se detecta
+  let hablo = false;
+  let ultimoSonido = performance.now();
+  const inicio = performance.now();
+
+  const revisar = setInterval(() => {
+    if (!S.grabando) { clearInterval(revisar); ctx.close(); return; }
+    analizador.getFloatTimeDomainData(datos);
+    let suma = 0;
+    for (const v of datos) suma += v * v;
+    const rms = Math.sqrt(suma / datos.length);
+
+    const ahora = performance.now();
+    if (rms > UMBRAL) { hablo = true; ultimoSonido = ahora; }
+
+    const corta = (hablo && ahora - ultimoSonido > SILENCIO_MS) || ahora - inicio > MAX_MS;
+    if (corta) {
+      clearInterval(revisar);
+      ctx.close();
+      detenerGrabacion();
+    }
+  }, 100);
+}
+
+function configurarPulsar() {
+  const b = document.getElementById('microfono');
+  const abajo = e => { e.preventDefault(); empezarGrabacion(); };
+  const arriba = e => { e.preventDefault(); detenerGrabacion(); };
+  b.onmousedown = abajo;  b.onmouseup = arriba;  b.onmouseleave = arriba;
+  b.ontouchstart = abajo; b.ontouchend = arriba;
+}
+
+function pintarBoton() {
+  const b = document.getElementById('microfono');
+  b.classList.toggle('grabando', S.grabando);
+  b.classList.toggle('ocupado', S.procesando);
+  if (S.procesando) b.textContent = 'El agente esta respondiendo...';
+  else if (S.grabando) b.textContent = S.modo === 'auto'
+    ? 'Escuchando... (se corta solo al detectar silencio)'
+    : 'Grabando... suelte para enviar';
+  else b.textContent = S.modo === 'auto' ? 'En pausa' : 'Mantener pulsado para hablar';
+}
+
+// ---------------------------------------------------------------------------
+// Turno: envio y lectura del stream de eventos
+// ---------------------------------------------------------------------------
+function enviarTexto() {
+  const campo = document.getElementById('texto-manual');
+  const texto = campo.value.trim();
+  if (!texto || S.procesando || !S.llamadaId) return;
+  campo.value = '';
+  S.t0 = performance.now();
+  const cuerpo = new FormData();
+  cuerpo.append('texto', texto);
+  enviarFormulario(cuerpo);
+}
+
+function enviarTurno(blob) {
+  const cuerpo = new FormData();
+  cuerpo.append('audio', blob, 'turno.webm');
+  enviarFormulario(cuerpo);
+}
+
+async function enviarFormulario(cuerpo) {
+  S.procesando = true;
+  S.msPrimeraVoz = null;
+  S.turnoFin = null;
+  S.burbujaAgente = null;
+  pintarBoton();
+  limpiarAvisos();
+
+  try {
+    const r = await fetch(`/api/llamadas/${S.llamadaId}/turno`, { method: 'POST', body: cuerpo });
+    if (!r.ok) {
+      const d = await r.json().catch(() => ({}));
+      throw new Error(d.detail || `El servidor respondio ${r.status}`);
+    }
+
+    const lector = r.body.getReader();
+    const dec = new TextDecoder();
+    let buffer = '';
+    while (true) {
+      const { done, value } = await lector.read();
+      if (done) break;
+      buffer += dec.decode(value, { stream: true });
+      let corte;
+      while ((corte = buffer.indexOf('\n\n')) >= 0) {
+        const bloque = buffer.slice(0, corte).trim();
+        buffer = buffer.slice(corte + 2);
+        if (bloque.startsWith('data:')) {
+          try { manejarEvento(JSON.parse(bloque.slice(5))); }
+          catch (e) { console.warn('Evento ilegible', bloque, e); }
+        }
+      }
+    }
+  } catch (e) {
+    avisar(`Fallo el turno: ${escapar(e.message)}`, 'error');
+  } finally {
+    S.procesando = false;
+    if (S.colaVoz <= 0) finTurnoAgente();
+    else pintarBoton();
+  }
+}
+
+function manejarEvento(ev) {
+  switch (ev.tipo) {
+    case 'transcripcion':
+      burbuja('paciente', ev.texto);
+      document.getElementById('pie-metricas').innerHTML =
+        `Transcripcion en <b>${Math.round(ev.ms_stt)} ms</b>`;
+      break;
+
+    case 'vacio':
+      avisar(escapar(ev.mensaje), '');
+      break;
+
+    case 'estado':
+      pintarDecision(ev);
+      break;
+
+    case 'alerta':
+      avisar(`<b>Alerta creada</b> (<span class="mono">${ev.alerta_id}</span>):
+              el caso quedo registrado para que lo tome personal capacitado.`, 'error');
+      break;
+
+    case 'citas':
+      pintarCitas(ev);
+      break;
+
+    case 'frase':
+      hablar(ev.texto);
+      acumularAgente(ev.texto);
+      break;
+
+    case 'fin':
+      // Primero las metricas del turno: reportarLatencia las complementa y no
+      // debe quedar pisada por ellas.
+      pintarMetricas(ev.metricas);
+      S.turnoFin = ev.turno;
+      reportarLatencia();
+      break;
+
+    case 'error':
+      avisar(escapar(ev.mensaje), 'error');
+      break;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Pintado
+// ---------------------------------------------------------------------------
+function burbuja(quien, texto) {
+  const caja = document.getElementById('transcripcion');
+  const div = document.createElement('div');
+  div.className = `burbuja ${quien}`;
+  div.innerHTML = `<div class="quien">${quien === 'agente' ? 'Sara (agente)' : 'Paciente'}</div>
+                   <div class="cuerpo">${escapar(texto)}</div>`;
+  caja.appendChild(div);
+  caja.scrollTop = caja.scrollHeight;
+  return div;
+}
+
+function acumularAgente(texto) {
+  if (!S.burbujaAgente) S.burbujaAgente = burbuja('agente', texto);
+  else {
+    const cuerpo = S.burbujaAgente.querySelector('.cuerpo');
+    cuerpo.textContent = `${cuerpo.textContent} ${texto}`.trim();
+  }
+  const caja = document.getElementById('transcripcion');
+  caja.scrollTop = caja.scrollHeight;
+}
+
+function pintarDecision(ev) {
+  const colores = { verde: 'var(--verde)', amarillo: 'var(--amarillo)', rojo: 'var(--rojo)' };
+  document.getElementById('barra-nivel').style.background = colores[ev.nivel];
+  const n = document.getElementById('nivel');
+  n.textContent = ev.nivel.toUpperCase();
+  n.className = ev.nivel;
+  document.getElementById('motivo').textContent = ev.motivo || '';
+  document.getElementById('origen').textContent =
+    `origen de la decision: ${ev.banderas.origen} · puntaje ${ev.banderas.puntaje} · ` +
+    `${ev.banderas.escalar ? 'escala a humano' : 'no escala'}`;
+
+  const banderas = [
+    ...ev.banderas.banderas_rojas.map(b => ({ ...b, c: 'r' })),
+    ...ev.banderas.banderas_amarillas.map(b => ({ ...b, c: 'a' })),
+  ];
+  document.getElementById('banderas').innerHTML = banderas.length
+    ? banderas.map(b => `<div class="bandera ${b.c}">${escapar(b.descripcion)}
+        <span class="tenue mono" style="font-size:11px">${escapar(b.codigo)} · peso ${b.peso}</span></div>`).join('')
+    : '<span class="vacio">Ninguna.</span>';
+
+  const e = ev.estado_clinico;
+  const filas = Object.entries(ETIQUETAS)
+    // Una bandera en false es ausencia de dato y no se muestra, salvo la fiebre
+    // referida: ahi false significa que el paciente la nego, y eso si informa.
+    .filter(([k]) => e[k] !== null && e[k] !== undefined &&
+                     (e[k] !== false || k === 'fiebre_subjetiva'))
+    .map(([k, etiqueta]) => {
+      let v = e[k];
+      if (k === 'fiebre_c') v = `${v} C`;
+      else if (typeof v === 'boolean') v = v ? 'si' : 'no';
+      return `<div class="dato"><span class="k">${etiqueta}</span><span>${escapar(v)}</span></div>`;
+    });
+  document.getElementById('estado-clinico').innerHTML =
+    filas.length ? filas.join('') : '<span class="vacio">Nada todavia.</span>';
+
+  document.getElementById('pendientes').innerHTML = ev.pendientes.length
+    ? ev.pendientes.map(p => `<span class="pendiente">${escapar(p)}</span>`).join('')
+    : '<span class="insignia verde">los seis temas cubiertos</span>';
+}
+
+function pintarCitas(ev) {
+  const caja = document.getElementById('citas');
+  const encabezado = ev.hay_evidencia
+    ? '<div class="insignia verde" style="margin-bottom:8px">evidencia suficiente</div>'
+    : '<div class="insignia amarillo" style="margin-bottom:8px">sin evidencia suficiente: el agente declara su limite</div>';
+  caja.innerHTML = encabezado + ev.citas.map(c =>
+    `<div class="cita"><b>${escapar(c.documento)}</b>, pagina ${c.pagina}
+     <span class="tenue mono">· similitud ${c.similitud}</span></div>`).join('');
+}
+
+function pintarMetricas(m) {
+  const ms = m.ms;
+  const partes = [
+    ms.stt ? `STT ${Math.round(ms.stt)} ms` : null,
+    ms.extraccion_y_recuperacion ? `extraccion+RAG ${Math.round(ms.extraccion_y_recuperacion)} ms` : null,
+    ms.llm_ttft ? `primer token ${Math.round(ms.llm_ttft)} ms` : null,
+    `servidor ${Math.round(ms.servidor_total)} ms`,
+    `${m.tokens.tokens_entrada}+${m.tokens.tokens_salida} tokens`,
+    `US$ ${m.costo_usd.toFixed(6)}`,
+  ].filter(Boolean);
+  document.getElementById('pie-metricas').innerHTML = partes.join(' · ');
+}
+
+// ---------------------------------------------------------------------------
+// Cierre
+// ---------------------------------------------------------------------------
+async function finalizar() {
+  if (!S.llamadaId) return;
+  detenerGrabacion();
+  speechSynthesis.cancel();
+  S.colaVoz = 0;
+
+  const r = await fetch(`/api/llamadas/${S.llamadaId}/cierre`, { method: 'POST' });
+  const d = await r.json();
+  if (!r.ok) return avisar(escapar(d.detail || 'No se pudo cerrar'), 'error');
+
+  const n = d.narrativa || {};
+  const lista = (titulo, valores) => valores && valores.length
+    ? `<div style="margin-top:10px"><div class="tenue" style="font-size:11.5px; text-transform:uppercase; letter-spacing:.06em">${titulo}</div>
+       <ul style="margin:5px 0 0; padding-left:20px">${valores.map(v => `<li>${escapar(v)}</li>`).join('')}</ul></div>`
+    : '';
+
+  document.getElementById('resumen-legible').innerHTML = `
+    <div class="fila" style="margin-bottom:10px">
+      <span class="insignia ${d.decision.nivel}">${d.decision.nivel.toUpperCase()}</span>
+      <span class="insignia ${d.decision.escalar_a_humano ? 'rojo' : 'neutro'}">
+        ${d.decision.escalar_a_humano ? 'escalar a humano' : 'no requiere escalamiento'}</span>
+      <span class="tenue">${d.turnos} turnos · ${d.duracion_s} s · ${d.referencias.length} referencias citadas</span>
+    </div>
+    <div><b>${escapar(d.paciente.nombre)}</b> · ${escapar(d.paciente.procedimiento)} ·
+         dia ${d.paciente.dia_postop} · CC ${escapar(d.paciente.documento)}</div>
+    <div style="margin-top:8px">${escapar(n.motivo_llamada || d.decision.motivo)}</div>
+    ${lista('Sintomas reportados', n.sintomas_reportados)}
+    ${lista('Hallazgos relevantes', n.hallazgos_relevantes)}
+    ${lista('Temas no cubiertos', n.temas_no_cubiertos)}
+    ${n.recomendacion_para_el_equipo
+      ? `<div style="margin-top:10px"><div class="tenue" style="font-size:11.5px; text-transform:uppercase; letter-spacing:.06em">Recomendacion para el equipo</div>
+         ${escapar(n.recomendacion_para_el_equipo)}</div>` : ''}`;
+
+  document.getElementById('resumen-json').textContent = JSON.stringify(d, null, 2);
+  document.getElementById('panel-resumen').style.display = '';
+  document.getElementById('panel-resumen').scrollIntoView({ behavior: 'smooth' });
+
+  S.llamadaId = null;
+  document.getElementById('btn-iniciar').disabled = false;
+  document.getElementById('paciente').disabled = false;
+  document.getElementById('dia').disabled = false;
+  document.getElementById('microfono').textContent = 'Llamada finalizada';
+}
+
+window.addEventListener('beforeunload', () => speechSynthesis.cancel());
+</script>
+</body>
+</html>

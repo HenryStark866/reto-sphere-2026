@@ -1,0 +1,726 @@
+{
+  "resumen": {
+    "preguntas": 26,
+    "en_corpus": {
+      "total": 18,
+      "con_evidencia": 14,
+      "tasa_evidencia": 0.7778,
+      "similitud_promedio": 0.7485,
+      "recuperacion_por_claves": 0.8889
+    },
+    "fuera_de_corpus": {
+      "total": 8,
+      "abstenciones_correctas": 2,
+      "tasa_abstencion": 0.25,
+      "declara_limite": null,
+      "tasa_declara_limite": null
+    },
+    "fundamentacion": {
+      "respuestas_juzgadas": 0,
+      "sustentadas": 0,
+      "tasa_fundamentacion": null,
+      "no_sustentadas": []
+    }
+  },
+  "detalle": [
+    {
+      "pregunta": "Como se ve una herida quirurgica infectada y que senales debo vigilar?",
+      "escenario": "appendicitis",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.7991,
+      "similitud_top3": 0.7846,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Apendicitis aguda perforada secundaria a cuerpo extraño- reporte de caso.pdf p.2",
+        "Reemplazo total de cadera Guía para el paciente .pdf p.20",
+        "CUIDADO ESTANDARIZADO EN EL PACIENTE QUIRURGICO CON ALTERACIONES EN LA FUNCION GASTROINTESTINAL.pdf p.14"
+      ],
+      "claves_esperadas": [
+        "infecc",
+        "infection",
+        "eritema",
+        "erythema",
+        "purulen",
+        "drenaje"
+      ],
+      "claves_encontradas": [
+        "infecc",
+        "purulen"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Cuando debo consultar por fiebre despues de una apendicectomia?",
+      "escenario": "appendicitis",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.8107,
+      "similitud_top3": 0.8062,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "FACTORES ASOCIADOS A LA INCIDENCIA DE APENDICITIS AGUDA COMPLICADA EN LA E.S.E. HOSPITAL UNIVERSITARIO DEL CARIBE.pdf p.20",
+        "Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf p.49",
+        "diagnóstico, tratamiento y seguimiento del paciente adulto con apendicitis aguda en el Hospital Universitario Nacional de Colombia.pdf p.32"
+      ],
+      "claves_esperadas": [
+        "fiebre",
+        "fever",
+        "temperature",
+        "38"
+      ],
+      "claves_encontradas": [
+        "fiebre",
+        "38"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que complicaciones pueden aparecer despues de una apendicectomia laparoscopica?",
+      "escenario": "appendicitis",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.8005,
+      "similitud_top3": 0.7846,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Apendicitis.pdf p.9",
+        "diagnóstico, tratamiento y seguimiento del paciente adulto con apendicitis aguda en el Hospital Universitario Nacional de Colombia.pdf p.41",
+        "CUIDADO ESTANDARIZADO EN EL PACIENTE QUIRURGICO CON ALTERACIONES EN LA FUNCION GASTROINTESTINAL.pdf p.14"
+      ],
+      "claves_esperadas": [
+        "complicat",
+        "complicacion",
+        "absceso",
+        "abscess",
+        "laparoscop"
+      ],
+      "claves_encontradas": [
+        "complicacion",
+        "absceso",
+        "laparoscop"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que cuidados necesita la herida despues de una colecistectomia?",
+      "escenario": "cholecystitis",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.726,
+      "similitud_top3": 0.7197,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Colelitiasis y colecistitis aguda.pdf p.10",
+        "Estándar Clínico Basado en la Evidencia- Diagnóstico y tratamiento del paciente con colecistitis aguda calculosa en el Hospital Universitario Nacional.pdf p.48",
+        "Estándar Clínico Basado en la Evidencia- Diagnóstico y tratamiento del paciente con colecistitis aguda calculosa en el Hospital Universitario Nacional.pdf p.46"
+      ],
+      "claves_esperadas": [
+        "herida",
+        "wound",
+        "incision",
+        "cuidado",
+        "care"
+      ],
+      "claves_encontradas": [
+        "herida",
+        "cuidado"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Es esperable el dolor en el hombro despues de una cirugia laparoscopica de vesicula?",
+      "escenario": "cholecystitis",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.7301,
+      "similitud_top3": 0.7138,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Estándar Clínico Basado en la Evidencia- Diagnóstico y tratamiento del paciente con colecistitis aguda calculosa en el Hospital Universitario Nacional.pdf p.15",
+        "Diagnóstico y tratamiento del paciente con colecistitis aguda calculosa en el Hospital Universitario Nacional de Colombia .pdf p.72",
+        "Estándar Clínico Basado en la Evidencia- Diagnóstico y tratamiento del paciente con colecistitis aguda calculosa en el Hospital Universitario Nacional.pdf p.19"
+      ],
+      "claves_esperadas": [
+        "hombro",
+        "shoulder",
+        "laparoscop",
+        "dolor",
+        "pain"
+      ],
+      "claves_encontradas": [
+        "hombro",
+        "laparoscop",
+        "dolor"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que significa que la piel y los ojos se pongan amarillos despues de una cirugia de vesicula?",
+      "escenario": "cholecystitis",
+      "en_corpus": true,
+      "hay_evidencia": false,
+      "mejor_similitud": 0.5413,
+      "similitud_top3": 0.5339,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "PLAN DE CUIDADO COLECISTECTOMIA.pdf p.5",
+        "CUIDADO ESTANDARIZADO EN EL PACIENTE QUIRURGICO CON ALTERACIONES EN LA FUNCION GASTROINTESTINAL.pdf p.8",
+        "CUIDADO ESTANDARIZADO EN EL PACIENTE QUIRURGICO CON ALTERACIONES EN LA FUNCION GASTROINTESTINAL.pdf p.25"
+      ],
+      "claves_esperadas": [
+        "ictericia",
+        "jaundice",
+        "bilirrubin",
+        "biliar",
+        "bile"
+      ],
+      "claves_encontradas": [
+        "ictericia",
+        "biliar"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Cuando debe reiniciarse la alimentacion despues de una cirugia de colon?",
+      "escenario": "colorectal_cancer",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.7471,
+      "similitud_top3": 0.7426,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "diagnóstico, tratamiento y seguimiento del paciente adulto con apendicitis aguda en el Hospital Universitario Nacional de Colombia.pdf p.73",
+        "Recom endaciones Programa Reemplazo Articular de Rodilla.pdf p.6",
+        "GUÍA DE MANEJO PARA EL DIAGNÓSTICO, TRATAMIENTO, SEGUIMIENTO Y PALIACIÓN DEL CÁNCER DE COLON Y RECTO.pdf p.77"
+      ],
+      "claves_esperadas": [
+        "dieta",
+        "diet",
+        "alimenta",
+        "oral intake",
+        "nutrition"
+      ],
+      "claves_encontradas": [
+        "dieta",
+        "diet",
+        "alimenta"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que es el ileo postoperatorio y como se reconoce?",
+      "escenario": "colorectal_cancer",
+      "en_corpus": true,
+      "hay_evidencia": false,
+      "mejor_similitud": 0.6715,
+      "similitud_top3": 0.6613,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Determinación de los factores predictivos para complicaciones en cirugía electiva de pacientes con cáncer colorrectal. Experiencia del Instituto de Cancerología Las Américas Auna (Colombia, 2016-2019).pdf p.3",
+        "MANEJO DE LAS COMPLICACIONES DE POSTOPERATORIO DE REEMPLAZO DE CADERA A TRAVÉS DE LA TELEMEDICINA.pdf p.7",
+        "Artroplastia total de rodilla- vías de abordaje pararrotuliana medial y ampliada.pdf p.11"
+      ],
+      "claves_esperadas": [
+        "ileo",
+        "ileus",
+        "gases",
+        "bowel",
+        "distension"
+      ],
+      "claves_encontradas": [
+        "gases"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que senales de alarma indican una fuga anastomotica despues de una colectomia?",
+      "escenario": "colorectal_cancer",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.7867,
+      "similitud_top3": 0.7694,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Protocolo de recuperación mejorada después de cirugía (ERAS) atenúa el estrés y acelera la recuperación en pacientes después de resección radical por cáncer colorrectal- Experiencia en la Clínica Universitaria Colombia.pdf p.11",
+        "Protocolo de recuperación mejorada después de cirugía (ERAS) atenúa el estrés y acelera la recuperación en pacientes después de resección radical por cáncer colorrectal- Experiencia en la Clínica Universitaria Colombia.pdf p.7",
+        "Efecto de la implementación de las recomendaciones del protocolo de recuperación mejorada después de cirugía (ERAS) en cirugía colorrectal en un hospital de referencia del suroccidente colombiano.pdf p.2"
+      ],
+      "claves_esperadas": [
+        "anastomo",
+        "leak",
+        "fuga",
+        "peritonitis",
+        "taquicardia"
+      ],
+      "claves_encontradas": [
+        "anastomo",
+        "fuga"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Como se maneja el drenaje despues de una mastectomia?",
+      "escenario": "breast_cancer",
+      "en_corpus": true,
+      "hay_evidencia": false,
+      "mejor_similitud": 0.676,
+      "similitud_top3": 0.6695,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Documento.pdf p.26",
+        "cervical-es-patient.pdf p.52",
+        "cervical-es-patient.pdf p.32"
+      ],
+      "claves_esperadas": [
+        "drenaje",
+        "drain",
+        "seroma",
+        "mastect"
+      ],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que es un seroma y que hago si aparece despues de una cirugia de mama?",
+      "escenario": "breast_cancer",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.8025,
+      "similitud_top3": 0.7935,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "cervix16nov-full.pdf p.43",
+        "cervix16nov-full.pdf p.42",
+        "cervix16nov-full.pdf p.31"
+      ],
+      "claves_esperadas": [
+        "seroma",
+        "fluid",
+        "liquido",
+        "aspira"
+      ],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que ejercicios de hombro se recomiendan despues de una cirugia de mama?",
+      "escenario": "breast_cancer",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.7199,
+      "similitud_top3": 0.6633,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf p.29",
+        "ijgm-18-6073.pdf p.3",
+        "cervical-es-patient.pdf p.48"
+      ],
+      "claves_esperadas": [
+        "ejercicio",
+        "exercise",
+        "hombro",
+        "shoulder",
+        "rango",
+        "range of motion"
+      ],
+      "claves_encontradas": [
+        "ejercicio",
+        "exercise",
+        "shoulder"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Como prevengo una trombosis en la pierna despues de un reemplazo de rodilla?",
+      "escenario": "total_joint_replacement",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.8089,
+      "similitud_top3": 0.8032,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Reemplazo total de cadera Guía para el paciente .pdf p.17",
+        "Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf p.28",
+        "PLAN CASERO REEMPLAZO TOTAL DE RODILLA.pdf p.5"
+      ],
+      "claves_esperadas": [
+        "trombosis",
+        "thrombosis",
+        "dvt",
+        "tromboprofilaxis",
+        "anticoagul"
+      ],
+      "claves_encontradas": [
+        "trombosis",
+        "anticoagul"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Cuanto peso puedo apoyar sobre la pierna operada despues de un reemplazo de cadera?",
+      "escenario": "total_joint_replacement",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.8153,
+      "similitud_top3": 0.7881,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf p.25",
+        "Reemplazo total de cadera Guía para el paciente .pdf p.23",
+        "Reemplazo total de cadera Guía para el paciente .pdf p.16"
+      ],
+      "claves_esperadas": [
+        "carga",
+        "weight bearing",
+        "apoyo",
+        "deambula",
+        "rehabilit"
+      ],
+      "claves_encontradas": [
+        "apoyo"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que movimientos debo evitar para no luxar una protesis de cadera?",
+      "escenario": "total_joint_replacement",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.7589,
+      "similitud_top3": 0.7567,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Reemplazo total de cadera Guía para el paciente .pdf p.17",
+        "Reemplazo total de cadera Guía para el paciente .pdf p.23",
+        "Reemplazo total de cadera Guía para el paciente .pdf p.23"
+      ],
+      "claves_esperadas": [
+        "luxacion",
+        "dislocation",
+        "precaucion",
+        "precaution",
+        "flexion"
+      ],
+      "claves_encontradas": [
+        "precaucion"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que signos de infeccion de la protesis articular debo vigilar en casa?",
+      "escenario": "total_joint_replacement",
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.8106,
+      "similitud_top3": 0.7937,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Reemplazo total de cadera Guía para el paciente .pdf p.17",
+        "MANEJO DE LAS COMPLICACIONES DE POSTOPERATORIO DE REEMPLAZO DE CADERA A TRAVÉS DE LA TELEMEDICINA.pdf p.10",
+        "Artroplastía total de rodilla- grado de funcionalidad postoperatoria en adultos.pdf p.2"
+      ],
+      "claves_esperadas": [
+        "infecc",
+        "infection",
+        "periprosthetic",
+        "protesis",
+        "fiebre"
+      ],
+      "claves_encontradas": [
+        "infecc"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Como se controla el dolor postoperatorio sin depender solo de opioides?",
+      "escenario": null,
+      "en_corpus": true,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.8345,
+      "similitud_top3": 0.8188,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Eficacia de diferentes técnicas de analgesiamultimodal para la prevención de dolormoderado a severo en reemplazo totalprimario de rodilla.pdf p.3",
+        "GUÍA DE MANEJO PARA EL DIAGNÓSTICO, TRATAMIENTO, SEGUIMIENTO Y PALIACIÓN DEL CÁNCER DE COLON Y RECTO.pdf p.125",
+        "cervix16nov-full.pdf p.40"
+      ],
+      "claves_esperadas": [
+        "dolor",
+        "pain",
+        "multimodal",
+        "analges"
+      ],
+      "claves_encontradas": [
+        "dolor",
+        "analges"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que es un protocolo ERAS de recuperacion acelerada?",
+      "escenario": null,
+      "en_corpus": true,
+      "hay_evidencia": false,
+      "mejor_similitud": 0.6333,
+      "similitud_top3": 0.6075,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Protocolo de recuperación mejorada después de cirugía (ERAS) atenúa el estrés y acelera la recuperación en pacientes después de resección radical por cáncer colorrectal- Experiencia en la Clínica Universitaria Colombia.pdf p.3",
+        "Efecto de la implementación de las recomendaciones del protocolo de recuperación mejorada después de cirugía (ERAS) en cirugía colorrectal en un hospital de referencia del suroccidente colombiano.pdf p.10",
+        "Protocolo de recuperación mejorada después de cirugía (ERAS) atenúa el estrés y acelera la recuperación en pacientes después de resección radical por cáncer colorrectal- Experiencia en la Clínica Universitaria Colombia.pdf p.11"
+      ],
+      "claves_esperadas": [
+        "eras",
+        "enhanced recovery",
+        "recuperacion",
+        "protocol"
+      ],
+      "claves_encontradas": [
+        "eras",
+        "protocol"
+      ],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Cual es el protocolo de rehabilitacion despues de una cirugia de columna lumbar?",
+      "escenario": null,
+      "en_corpus": false,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.8084,
+      "similitud_top3": 0.7707,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "FACTORES ASOCIADOS CON LA INSATISFACCIÓN DE LOS PACIENTES EN LOS RESULTADOS QUIRÚRGICOS DE REEMPLAZO TOTAL DE RODILLA A LOS 3 Y 6 MESES POSOPERATORIOS..pdf p.27",
+        "Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf p.29",
+        "Reemplazo total de cadera Guía para el paciente .pdf p.20"
+      ],
+      "claves_esperadas": [],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que cuidados necesita el postoperatorio de un trasplante de rinon?",
+      "escenario": null,
+      "en_corpus": false,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.8321,
+      "similitud_top3": 0.8205,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "GUÍA DE MANEJO PARA EL DIAGNÓSTICO, TRATAMIENTO, SEGUIMIENTO Y PALIACIÓN DEL CÁNCER DE COLON Y RECTO.pdf p.48",
+        "MANEJO DE LAS COMPLICACIONES DE POSTOPERATORIO DE REEMPLAZO DE CADERA A TRAVÉS DE LA TELEMEDICINA.pdf p.4",
+        "002-GUIA-DE-CANCER-DE-CUELLO-UTERINO.pdf p.10"
+      ],
+      "claves_esperadas": [],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Cuanto tiempo dura la recuperacion de una cesarea y cuando puedo cargar al bebe?",
+      "escenario": null,
+      "en_corpus": false,
+      "hay_evidencia": false,
+      "mejor_similitud": 0.6952,
+      "similitud_top3": 0.6804,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Reemplazo total de cadera Guía para el paciente .pdf p.14",
+        "Reemplazo total de cadera Guía para el paciente .pdf p.17",
+        "cervical-es-patient.pdf p.47"
+      ],
+      "claves_esperadas": [],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que debo hacer despues de una cirugia de cataratas en el ojo derecho?",
+      "escenario": null,
+      "en_corpus": false,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.7438,
+      "similitud_top3": 0.7309,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Reemplazo total de cadera Guía para el paciente .pdf p.23",
+        "diagnóstico, tratamiento y seguimiento del paciente adulto con apendicitis aguda en el Hospital Universitario Nacional de Colombia.pdf p.48",
+        "Reemplazo total de cadera Guía para el paciente .pdf p.25"
+      ],
+      "claves_esperadas": [],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Como se maneja el postoperatorio de una cirugia cardiaca de bypass coronario?",
+      "escenario": null,
+      "en_corpus": false,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.733,
+      "similitud_top3": 0.6979,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf p.23",
+        "MANEJO DE LAS COMPLICACIONES DE POSTOPERATORIO DE REEMPLAZO DE CADERA A TRAVÉS DE LA TELEMEDICINA.pdf p.7",
+        "Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf p.17"
+      ],
+      "claves_esperadas": [],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Cual es el horario de visitas y como pido una cita de control en la clinica?",
+      "escenario": null,
+      "en_corpus": false,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.7478,
+      "similitud_top3": 0.7231,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "GUÍA DE MANEJO PARA EL DIAGNÓSTICO, TRATAMIENTO, SEGUIMIENTO Y PALIACIÓN DEL CÁNCER DE COLON Y RECTO.pdf p.12",
+        "FACTORES ASOCIADOS A LA INCIDENCIA DE APENDICITIS AGUDA COMPLICADA EN LA E.S.E. HOSPITAL UNIVERSITARIO DEL CARIBE.pdf p.11",
+        "Reemplazo total de cadera Guía para el paciente .pdf p.26"
+      ],
+      "claves_esperadas": [],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Cuanto me va a cobrar mi EPS por esta cirugia y como reclamo la incapacidad?",
+      "escenario": null,
+      "en_corpus": false,
+      "hay_evidencia": true,
+      "mejor_similitud": 0.71,
+      "similitud_top3": 0.7042,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "FACTORES ASOCIADOS CON LA INSATISFACCIÓN DE LOS PACIENTES EN LOS RESULTADOS QUIRÚRGICOS DE REEMPLAZO TOTAL DE RODILLA A LOS 3 Y 6 MESES POSOPERATORIOS..pdf p.55",
+        "Reemplazo total de Cadera Guía para pacientes y cuidadores El camino hacia su recuperación.pdf p.16",
+        "cervix16nov-full.pdf p.49"
+      ],
+      "claves_esperadas": [],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    },
+    {
+      "pregunta": "Que vacunas necesito para viajar a Brasil el proximo mes?",
+      "escenario": null,
+      "en_corpus": false,
+      "hay_evidencia": false,
+      "mejor_similitud": 0.6813,
+      "similitud_top3": 0.6608,
+      "pasajes_recuperados": 5,
+      "documentos": [
+        "Cáncer-de-Cuello-Uterino-mar_2022.pdf p.4",
+        "002-GUIA-DE-CANCER-DE-CUELLO-UTERINO.pdf p.2",
+        "Cáncer-de-Cuello-Uterino-mar_2022.pdf p.4"
+      ],
+      "claves_esperadas": [],
+      "claves_encontradas": [],
+      "respuesta": "",
+      "declara_limite": false,
+      "sustentada": null,
+      "afirmaciones_sin_respaldo": [],
+      "tokens": 0
+    }
+  ]
+}

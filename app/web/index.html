@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Seguimiento postoperatorio por voz</title>
+<link rel="stylesheet" href="/static/base.css">
+<style>
+  .tarjetas { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 8px; }
+  .tarjeta { display: block; text-decoration: none; color: inherit; }
+  .tarjeta .panel { height: 100%; transition: border-color .15s; }
+  .tarjeta:hover .panel { border-color: var(--acento); }
+  .tarjeta h3 { margin: 0 0 6px; font-size: 18px; }
+  .tarjeta p { color: var(--tenue); margin: 0 0 10px; font-size: 14px; }
+  .estado { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; }
+  .metrica { background: var(--panel-2); border: 1px solid var(--borde); border-radius: 8px; padding: 11px 13px; }
+  .metrica .valor { font-size: 20px; font-weight: 600; }
+  .metrica .clave { font-size: 11.5px; color: var(--tenue); text-transform: uppercase; letter-spacing: .06em; }
+  @media (max-width: 780px) { .tarjetas { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<header class="barra">
+  <h1>Seguimiento postoperatorio por voz</h1>
+  <nav>
+    <a href="/consola">Consola</a>
+    <a href="/llamada">Llamada</a>
+    <a href="/docs">API</a>
+  </nav>
+</header>
+
+<main>
+  <div id="avisos"></div>
+
+  <div class="tarjetas">
+    <a class="tarjeta" href="/llamada">
+      <div class="panel">
+        <h3>Interfaz de llamada</h3>
+        <p>La llamada de produccion: se elige el paciente, se habla por microfono y el
+           agente responde con voz, fundamentado en el corpus clinico.</p>
+        <span class="insignia neutro">Paciente</span>
+      </div>
+    </a>
+    <a class="tarjeta" href="/consola">
+      <div class="panel">
+        <h3>Consola de administracion</h3>
+        <p>El back-office: subir, listar y eliminar documentos clinicos en caliente,
+           probar el corpus y revisar llamadas y alertas.</p>
+        <span class="insignia neutro">Personal de la clinica</span>
+      </div>
+    </a>
+  </div>
+
+  <div class="panel">
+    <h2>Estado del sistema</h2>
+    <div class="estado" id="estado"><span class="vacio">Consultando...</span></div>
+  </div>
+</main>
+
+<script>
+function tarjetaMetrica(clave, valor, clase) {
+  return `<div class="metrica"><div class="clave">${clave}</div>
+          <div class="valor ${clase || ''}">${valor}</div></div>`;
+}
+
+fetch('/api/salud').then(r => r.json()).then(s => {
+  const avisos = [];
+  if (!s.credenciales_groq) {
+    avisos.push(`<div class="aviso error"><b>Falta GROQ_API_KEY.</b> Copia
+      <span class="mono">.env.example</span> a <span class="mono">.env</span> y pon tu llave de
+      console.groq.com. La consola funciona sin ella; la llamada de voz no.</div>`);
+  }
+  if (!s.corpus_listo) {
+    avisos.push(`<div class="aviso"><b>El indice esta vacio.</b> Ejecuta
+      <span class="mono">python -m scripts.build_index</span> para indexar el corpus clinico,
+      o sube documentos desde la consola.</div>`);
+  }
+  const fuera = Object.entries(s.modelos).filter(([, m]) => !m.familia_permitida);
+  if (fuera.length) {
+    avisos.push(`<div class="aviso error"><b>Modelo fuera de la lista permitida:</b>
+      ${fuera.map(([k, m]) => `${k} = ${m.modelo}`).join(', ')}.</div>`);
+  }
+  if (!avisos.length) {
+    avisos.push('<div class="aviso ok">Sistema listo: credenciales cargadas, modelos permitidos y corpus indexado.</div>');
+  }
+  document.getElementById('avisos').innerHTML = avisos.join('');
+
+  document.getElementById('estado').innerHTML = [
+    tarjetaMetrica('Modelo de dialogo', s.modelos.dialogo.modelo, 'mono'),
+    tarjetaMetrica('Modelo de extraccion', s.modelos.extraccion.modelo, 'mono'),
+    tarjetaMetrica('Transcripcion', s.modelos.stt.modelo, 'mono'),
+    tarjetaMetrica('Documentos indexados', s.indice.documentos),
+    tarjetaMetrica('Fragmentos', s.indice.fragmentos),
+    tarjetaMetrica('Version del indice', s.indice.version),
+  ].join('');
+}).catch(e => {
+  document.getElementById('estado').innerHTML = `<span class="vacio">Sin respuesta del servidor: ${e}</span>`;
+});
+</script>
+</body>
+</html>

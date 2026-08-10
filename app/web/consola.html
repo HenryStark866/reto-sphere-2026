@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Consola de administracion</title>
+<link rel="stylesheet" href="/static/base.css">
+<style>
+  #soltar {
+    border: 2px dashed var(--borde);
+    border-radius: var(--radio);
+    padding: 26px;
+    text-align: center;
+    color: var(--tenue);
+    transition: .15s;
+    cursor: pointer;
+  }
+  #soltar.encima { border-color: var(--acento); background: #3b82f611; color: var(--texto); }
+  .resumen-indice { display: flex; gap: 22px; flex-wrap: wrap; font-size: 13px; }
+  .resumen-indice b { font-size: 16px; display: block; font-variant-numeric: tabular-nums; }
+  .pasaje { border-left: 2px solid var(--borde); padding: 6px 0 6px 12px; margin-bottom: 12px; }
+  .pasaje .cabecera { font-size: 12.5px; color: var(--tenue); margin-bottom: 4px; }
+  .pasaje .extracto { font-size: 13px; color: #c9d1d9; }
+  .barra-progreso { height: 3px; background: var(--acento); width: 0; transition: width .3s; border-radius: 2px; }
+</style>
+</head>
+<body>
+<header class="barra">
+  <h1>Consola de administracion</h1>
+  <nav>
+    <a href="/">Inicio</a>
+    <a href="/consola" class="activo">Consola</a>
+    <a href="/llamada">Llamada</a>
+  </nav>
+</header>
+
+<main>
+  <div id="avisos"></div>
+
+  <!-- ------------------------------------------------------ conocimiento -->
+  <div class="panel">
+    <h2>Base de conocimiento</h2>
+    <div class="fila" style="margin-bottom:14px">
+      <div class="resumen-indice crece" id="resumen-indice"><span class="vacio">Cargando...</span></div>
+      <label class="campo">Escenario del documento
+        <select id="escenario"></select>
+      </label>
+    </div>
+    <div id="soltar">
+      <b>Arrastra un documento aqui</b> o haz clic para elegirlo<br>
+      <span style="font-size:13px">PDF, TXT o MD. Se procesa e indexa en caliente, sin reiniciar nada.</span>
+      <div class="barra-progreso" id="progreso"></div>
+    </div>
+    <input type="file" id="archivo" accept=".pdf,.txt,.md,.markdown" style="display:none" multiple>
+  </div>
+
+  <div class="panel">
+    <h2>Documentos cargados (<span id="n-docs">0</span>)</h2>
+    <div class="fila" style="margin-bottom:10px">
+      <input type="text" id="filtro" class="crece" placeholder="Filtrar por nombre o escenario...">
+      <button onclick="cargarDocumentos()">Refrescar</button>
+    </div>
+    <div style="max-height:420px; overflow:auto">
+      <table>
+        <thead><tr>
+          <th>Documento</th><th>Escenario</th><th>Estado</th>
+          <th class="num">Fragmentos</th><th class="num">Paginas</th>
+          <th>Origen</th><th></th>
+        </tr></thead>
+        <tbody id="tabla-docs"><tr><td colspan="7" class="vacio">Cargando...</td></tr></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- --------------------------------------------------------- probador -->
+  <div class="panel">
+    <h2>Probador del corpus</h2>
+    <p class="tenue" style="margin-top:-6px; font-size:13.5px">
+      Es la misma recuperacion que usa el agente durante la llamada. Sirve para comprobar
+      que un documento recien subido ya se cita, y que uno eliminado dejo de aparecer.
+    </p>
+    <div class="fila">
+      <input type="text" id="consulta" class="crece"
+             placeholder="Ej: signos de infeccion de la herida quirurgica"
+             onkeydown="if(event.key==='Enter') probar()">
+      <select id="escenario-consulta"></select>
+      <button class="primario" onclick="probar()">Consultar</button>
+    </div>
+    <div id="resultado-rag" style="margin-top:14px"></div>
+  </div>
+
+  <!-- ------------------------------------------------- llamadas y alertas -->
+  <div class="rejilla-2">
+    <div class="panel">
+      <h2>Alertas generadas</h2>
+      <div style="max-height:340px; overflow:auto">
+        <table>
+          <thead><tr><th>Paciente</th><th>Nivel</th><th>Motivo</th><th>Cuando</th></tr></thead>
+          <tbody id="tabla-alertas"><tr><td colspan="4" class="vacio">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>Llamadas registradas</h2>
+      <div style="max-height:340px; overflow:auto">
+        <table>
+          <thead><tr><th>Paciente</th><th>Dia</th><th>Nivel</th><th class="num">Turnos</th><th></th></tr></thead>
+          <tbody id="tabla-llamadas"><tr><td colspan="5" class="vacio">Cargando...</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" id="panel-detalle" style="display:none">
+    <h2>Detalle de la llamada <span id="detalle-id" class="mono"></span></h2>
+    <pre class="json" id="detalle"></pre>
+  </div>
+
+  <div class="panel">
+    <h2>Metricas acumuladas</h2>
+    <p class="tenue" style="margin-top:-6px; font-size:13.5px">
+      Agregadas desde <span class="mono">logs/turnos.jsonl</span>. Son las que se reportan en el README.
+    </p>
+    <pre class="json" id="metricas">Cargando...</pre>
+  </div>
+</main>
+
+<script>
+let DOCUMENTOS = [];
+
+function avisar(html, clase = '') {
+  const caja = document.getElementById('avisos');
+  caja.innerHTML = `<div class="aviso ${clase}">${html}</div>`;
+  if (clase === 'ok') setTimeout(() => { if (caja.innerHTML.includes(html)) caja.innerHTML = ''; }, 6000);
+}
+
+function escapar(t) {
+  return String(t ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+}
+
+function fecha(ts) {
+  return ts ? new Date(ts * 1000).toLocaleString('es-CO') : '';
+}
+
+// ------------------------------------------------------------ documentos
+async function cargarDocumentos() {
+  const r = await fetch('/api/documentos');
+  const d = await r.json();
+  DOCUMENTOS = d.documentos;
+
+  const s = d.indice;
+  document.getElementById('resumen-indice').innerHTML = `
+    <div><b>${s.documentos}</b><span class="tenue">documentos</span></div>
+    <div><b>${s.fragmentos}</b><span class="tenue">fragmentos</span></div>
+    <div><b>${s.dimension}</b><span class="tenue">dimensiones</span></div>
+    <div><b>v${s.version}</b><span class="tenue">version del indice</span></div>
+    <div><b class="mono" style="font-size:12.5px">${escapar(s.modelo_embedding)}</b><span class="tenue">embeddings</span></div>`;
+
+  for (const id of ['escenario', 'escenario-consulta']) {
+    const sel = document.getElementById(id);
+    if (sel.options.length) continue;
+    if (id === 'escenario-consulta') sel.add(new Option('todos los escenarios', ''));
+    d.escenarios.forEach(e => sel.add(new Option(e, e)));
+  }
+  pintarDocumentos();
+}
+
+function pintarDocumentos() {
+  const filtro = document.getElementById('filtro').value.toLowerCase();
+  const lista = DOCUMENTOS.filter(d =>
+    !filtro || d.nombre.toLowerCase().includes(filtro) || d.escenario.toLowerCase().includes(filtro));
+
+  document.getElementById('n-docs').textContent = DOCUMENTOS.length;
+  const cuerpo = document.getElementById('tabla-docs');
+
+  if (!lista.length) {
+    cuerpo.innerHTML = `<tr><td colspan="7" class="vacio">${DOCUMENTOS.length
+      ? 'Ningun documento coincide con el filtro.'
+      : 'El indice esta vacio. Ejecuta scripts/build_index.py o sube un documento.'}</td></tr>`;
+    return;
+  }
+
+  cuerpo.innerHTML = lista.map(d => {
+    const listo = d.estado === 'procesado';
+    return `<tr>
+      <td>${escapar(d.nombre)}<div class="tenue mono" style="font-size:11px">${d.doc_id}</div></td>
+      <td><span class="insignia neutro">${escapar(d.escenario)}</span></td>
+      <td><span class="insignia ${listo ? 'verde' : 'amarillo'}">${listo
+        ? 'procesado y disponible' : 'sin capa de texto'}</span></td>
+      <td class="num">${d.n_fragmentos}</td>
+      <td class="num">${d.paginas || '-'}${d.paginas_ocr ? ` <span class="tenue">(${d.paginas_ocr} OCR)</span>` : ''}</td>
+      <td class="tenue">${escapar(d.origen)}</td>
+      <td><button class="peligro" onclick="eliminar('${d.doc_id}', '${escapar(d.nombre).replace(/'/g, "\\'")}')">Eliminar</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function eliminar(docId, nombre) {
+  if (!confirm(`Eliminar "${nombre}" del indice?\n\nEl agente dejara de poder citarlo de inmediato.`)) return;
+  const r = await fetch('/api/documentos/' + docId, { method: 'DELETE' });
+  const d = await r.json();
+  if (!r.ok) return avisar(escapar(d.detail || 'No se pudo eliminar'), 'error');
+  avisar(`<b>${escapar(nombre)}</b> eliminado. El indice quedo en la version
+          <b>v${d.indice.version}</b> con ${d.indice.fragmentos} fragmentos.`, 'ok');
+  cargarDocumentos();
+}
+
+// ---------------------------------------------------------------- subida
+const zona = document.getElementById('soltar');
+const entradaArchivo = document.getElementById('archivo');
+const progreso = document.getElementById('progreso');
+
+zona.onclick = () => entradaArchivo.click();
+zona.ondragover = e => { e.preventDefault(); zona.classList.add('encima'); };
+zona.ondragleave = () => zona.classList.remove('encima');
+zona.ondrop = e => {
+  e.preventDefault();
+  zona.classList.remove('encima');
+  subir([...e.dataTransfer.files]);
+};
+entradaArchivo.onchange = () => { subir([...entradaArchivo.files]); entradaArchivo.value = ''; };
+
+async function subir(archivos) {
+  if (!archivos.length) return;
+  const escenario = document.getElementById('escenario').value;
+
+  for (let i = 0; i < archivos.length; i++) {
+    const archivo = archivos[i];
+    progreso.style.width = `${(i / archivos.length) * 100}%`;
+    avisar(`Procesando <b>${escapar(archivo.name)}</b>... (extraccion, troceado y embeddings)`);
+
+    const cuerpo = new FormData();
+    cuerpo.append('archivo', archivo);
+    cuerpo.append('escenario', escenario);
+
+    try {
+      const r = await fetch('/api/documentos', { method: 'POST', body: cuerpo });
+      const d = await r.json();
+      if (!r.ok) { avisar(`<b>${escapar(archivo.name)}</b>: ${escapar(d.detail)}`, 'error'); continue; }
+
+      const doc = d.documento;
+      if (doc.estado === 'procesado') {
+        avisar(`<b>${escapar(doc.nombre)}</b> procesado y disponible:
+          ${doc.n_fragmentos} fragmentos en ${d.ms_procesamiento} ms
+          ${doc.paginas_ocr ? `(${doc.paginas_ocr} paginas recuperadas por OCR)` : ''}.
+          Indice en <b>v${d.indice.version}</b>. El agente ya lo puede citar.`, 'ok');
+      } else {
+        avisar(`<b>${escapar(doc.nombre)}</b> se cargo pero <b>no tiene capa de texto</b> y
+          no se pudo extraer nada. Queda listado, pero no es citable.`, '');
+      }
+    } catch (e) {
+      avisar(`<b>${escapar(archivo.name)}</b>: ${escapar(e.message)}`, 'error');
+    }
+  }
+  progreso.style.width = '0';
+  cargarDocumentos();
+}
+
+// -------------------------------------------------------------- probador
+async function probar() {
+  const texto = document.getElementById('consulta').value.trim();
+  if (!texto) return;
+  const caja = document.getElementById('resultado-rag');
+  caja.innerHTML = '<span class="vacio">Consultando el corpus...</span>';
+
+  const r = await fetch('/api/rag/consulta', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ texto, escenario: document.getElementById('escenario-consulta').value || null }),
+  });
+  const d = await r.json();
+  if (!r.ok) return caja.innerHTML = `<div class="aviso error">${escapar(d.detail)}</div>`;
+
+  if (!d.pasajes.length) {
+    caja.innerHTML = '<div class="aviso">El corpus no devolvio ningun pasaje. El agente declararia que no tiene la informacion.</div>';
+    return;
+  }
+
+  const cabecera = d.hay_evidencia
+    ? `<div class="aviso ok">Hay evidencia suficiente (mejor similitud
+       <b>${d.mejor_similitud}</b>). El agente puede fundamentar una afirmacion clinica.</div>`
+    : `<div class="aviso">Sin evidencia suficiente: la mejor similitud es
+       <b>${d.mejor_similitud}</b> y el umbral es el configurado en <span class="mono">UMBRAL_EVIDENCIA</span>.
+       Aqui el agente declara su limite en vez de improvisar.</div>`;
+
+  caja.innerHTML = cabecera + d.pasajes.map((p, i) => `
+    <div class="pasaje">
+      <div class="cabecera">
+        [${i + 1}] <b>${escapar(p.documento)}</b>, pagina ${p.pagina}
+        &middot; similitud ${p.similitud} &middot; fusion ${p.puntaje_fusion}
+        &middot; <span class="mono">${escapar(p.escenario)}</span>
+      </div>
+      <div class="extracto">${escapar(p.extracto)}...</div>
+    </div>`).join('');
+}
+
+// ------------------------------------------------------ llamadas y alertas
+async function cargarActividad() {
+  const [a, l, m] = await Promise.all([
+    fetch('/api/alertas').then(r => r.json()),
+    fetch('/api/llamadas').then(r => r.json()),
+    fetch('/api/metricas').then(r => r.json()),
+  ]);
+
+  document.getElementById('tabla-alertas').innerHTML = a.alertas.length
+    ? a.alertas.map(x => `<tr>
+        <td>${escapar(x.nombre || '?')}<div class="tenue" style="font-size:12px">${escapar(x.procedimiento || '')}</div></td>
+        <td><span class="insignia ${x.nivel}">${x.nivel}</span></td>
+        <td style="font-size:13px">${escapar(x.motivo)}</td>
+        <td class="tenue" style="font-size:12px">${fecha(x.creada_ts)}</td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" class="vacio">Ninguna alerta todavia.</td></tr>';
+
+  document.getElementById('tabla-llamadas').innerHTML = l.llamadas.length
+    ? l.llamadas.map(x => `<tr>
+        <td>${escapar(x.nombre || '?')}<div class="tenue" style="font-size:12px">${escapar(x.procedimiento || '')}</div></td>
+        <td>${x.dia_postop ?? '-'}</td>
+        <td><span class="insignia ${x.nivel_final || 'neutro'}">${x.nivel_final || x.estado}</span></td>
+        <td class="num">${x.n_turnos}</td>
+        <td><button onclick="verDetalle('${x.id}')">Ver</button></td>
+      </tr>`).join('')
+    : '<tr><td colspan="5" class="vacio">Ninguna llamada registrada.</td></tr>';
+
+  document.getElementById('metricas').textContent = JSON.stringify(m, null, 2);
+}
+
+async function verDetalle(id) {
+  const d = await fetch('/api/llamadas/' + id).then(r => r.json());
+  document.getElementById('panel-detalle').style.display = '';
+  document.getElementById('detalle-id').textContent = id;
+  document.getElementById('detalle').textContent = JSON.stringify(d, null, 2);
+  document.getElementById('panel-detalle').scrollIntoView({ behavior: 'smooth' });
+}
+
+document.getElementById('filtro').oninput = pintarDocumentos;
+cargarDocumentos();
+cargarActividad();
+setInterval(cargarActividad, 15000);
+</script>
+</body>
+</html>

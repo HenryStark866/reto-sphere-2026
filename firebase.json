@@ -1,0 +1,31 @@
+{
+  "_comentario": "Firebase Hosting no puede servir esta aplicacion por si solo: es un servidor Python con estado en memoria y respuestas en streaming. Hosting actua aqui solo como puerta de entrada, reescribiendo TODO el trafico al servicio de Cloud Run que si corre la aplicacion. El valor de tenerlo delante es el dominio estable con HTTPS y CDN.",
+  "hosting": {
+    "public": "public",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+    "rewrites": [
+      {
+        "source": "**",
+        "run": {
+          "serviceId": "sara-postop",
+          "region": "us-central1"
+        }
+      }
+    ],
+    "headers": [
+      {
+        "source": "/api/llamadas/**/turno",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-store"
+          },
+          {
+            "key": "X-Accel-Buffering",
+            "value": "no"
+          }
+        ]
+      }
+    ]
+  }
+}

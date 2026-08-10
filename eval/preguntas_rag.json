@@ -1,0 +1,107 @@
+{
+  "_nota": "Banco de preguntas para medir fundamentacion clinica. 'en_corpus' son preguntas que los documentos de dataset/textos/ si cubren; 'fuera_de_corpus' son preguntas clinicas legitimas sobre material que el corpus no contiene, donde la conducta correcta es declarar el limite y no improvisar. 'claves' son terminos que deberian aparecer en algun pasaje recuperado; se listan en espanol e ingles porque el corpus es bilingue.",
+
+  "en_corpus": [
+    {
+      "pregunta": "Como se ve una herida quirurgica infectada y que senales debo vigilar?",
+      "escenario": "appendicitis",
+      "claves": ["infecc", "infection", "eritema", "erythema", "purulen", "drenaje"]
+    },
+    {
+      "pregunta": "Cuando debo consultar por fiebre despues de una apendicectomia?",
+      "escenario": "appendicitis",
+      "claves": ["fiebre", "fever", "temperature", "38"]
+    },
+    {
+      "pregunta": "Que complicaciones pueden aparecer despues de una apendicectomia laparoscopica?",
+      "escenario": "appendicitis",
+      "claves": ["complicat", "complicacion", "absceso", "abscess", "laparoscop"]
+    },
+    {
+      "pregunta": "Que cuidados necesita la herida despues de una colecistectomia?",
+      "escenario": "cholecystitis",
+      "claves": ["herida", "wound", "incision", "cuidado", "care"]
+    },
+    {
+      "pregunta": "Es esperable el dolor en el hombro despues de una cirugia laparoscopica de vesicula?",
+      "escenario": "cholecystitis",
+      "claves": ["hombro", "shoulder", "laparoscop", "dolor", "pain"]
+    },
+    {
+      "pregunta": "Que significa que la piel y los ojos se pongan amarillos despues de una cirugia de vesicula?",
+      "escenario": "cholecystitis",
+      "claves": ["ictericia", "jaundice", "bilirrubin", "biliar", "bile"]
+    },
+    {
+      "pregunta": "Cuando debe reiniciarse la alimentacion despues de una cirugia de colon?",
+      "escenario": "colorectal_cancer",
+      "claves": ["dieta", "diet", "alimenta", "oral intake", "nutrition"]
+    },
+    {
+      "pregunta": "Que es el ileo postoperatorio y como se reconoce?",
+      "escenario": "colorectal_cancer",
+      "claves": ["ileo", "ileus", "gases", "bowel", "distension"]
+    },
+    {
+      "pregunta": "Que senales de alarma indican una fuga anastomotica despues de una colectomia?",
+      "escenario": "colorectal_cancer",
+      "claves": ["anastomo", "leak", "fuga", "peritonitis", "taquicardia"]
+    },
+    {
+      "pregunta": "Como se maneja el drenaje despues de una mastectomia?",
+      "escenario": "breast_cancer",
+      "claves": ["drenaje", "drain", "seroma", "mastect"]
+    },
+    {
+      "pregunta": "Que es un seroma y que hago si aparece despues de una cirugia de mama?",
+      "escenario": "breast_cancer",
+      "claves": ["seroma", "fluid", "liquido", "aspira"]
+    },
+    {
+      "pregunta": "Que ejercicios de hombro se recomiendan despues de una cirugia de mama?",
+      "escenario": "breast_cancer",
+      "claves": ["ejercicio", "exercise", "hombro", "shoulder", "rango", "range of motion"]
+    },
+    {
+      "pregunta": "Como prevengo una trombosis en la pierna despues de un reemplazo de rodilla?",
+      "escenario": "total_joint_replacement",
+      "claves": ["trombosis", "thrombosis", "dvt", "tromboprofilaxis", "anticoagul"]
+    },
+    {
+      "pregunta": "Cuanto peso puedo apoyar sobre la pierna operada despues de un reemplazo de cadera?",
+      "escenario": "total_joint_replacement",
+      "claves": ["carga", "weight bearing", "apoyo", "deambula", "rehabilit"]
+    },
+    {
+      "pregunta": "Que movimientos debo evitar para no luxar una protesis de cadera?",
+      "escenario": "total_joint_replacement",
+      "claves": ["luxacion", "dislocation", "precaucion", "precaution", "flexion"]
+    },
+    {
+      "pregunta": "Que signos de infeccion de la protesis articular debo vigilar en casa?",
+      "escenario": "total_joint_replacement",
+      "claves": ["infecc", "infection", "periprosthetic", "protesis", "fiebre"]
+    },
+    {
+      "pregunta": "Como se controla el dolor postoperatorio sin depender solo de opioides?",
+      "escenario": null,
+      "claves": ["dolor", "pain", "multimodal", "analges"]
+    },
+    {
+      "pregunta": "Que es un protocolo ERAS de recuperacion acelerada?",
+      "escenario": null,
+      "claves": ["eras", "enhanced recovery", "recuperacion", "protocol"]
+    }
+  ],
+
+  "fuera_de_corpus": [
+    { "pregunta": "Cual es el protocolo de rehabilitacion despues de una cirugia de columna lumbar?" },
+    { "pregunta": "Que cuidados necesita el postoperatorio de un trasplante de rinon?" },
+    { "pregunta": "Cuanto tiempo dura la recuperacion de una cesarea y cuando puedo cargar al bebe?" },
+    { "pregunta": "Que debo hacer despues de una cirugia de cataratas en el ojo derecho?" },
+    { "pregunta": "Como se maneja el postoperatorio de una cirugia cardiaca de bypass coronario?" },
+    { "pregunta": "Cual es el horario de visitas y como pido una cita de control en la clinica?" },
+    { "pregunta": "Cuanto me va a cobrar mi EPS por esta cirugia y como reclamo la incapacidad?" },
+    { "pregunta": "Que vacunas necesito para viajar a Brasil el proximo mes?" }
+  ]
+}
