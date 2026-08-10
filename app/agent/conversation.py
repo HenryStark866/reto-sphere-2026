@@ -13,11 +13,11 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Iterator
 
 from app.agent import prompts, triage
-from app.agent.schema import EstadoSintomas, ResultadoTriaje
+from app.agent.schema import ORDEN_NIVEL, EstadoSintomas, ResultadoTriaje
 from app.config import MAX_TOKENS_DIALOGO, MODEL_DIALOGO, MODEL_EXTRACCION
 from app.llm import groq_client
 from app.metrics import Cronometro, costo_usd, registrar_turno
@@ -60,6 +60,11 @@ class Llamada:
     estado: EstadoSintomas = field(default_factory=EstadoSintomas)
     historial: list[dict] = field(default_factory=list)
     triaje: ResultadoTriaje | None = None
+    # El nivel mas alto alcanzado en la llamada. La segunda opinion del modelo
+    # se recalcula en cada turno, asi que una escalada suya se evaporaba al
+    # turno siguiente aunque `combinar` prometa que el modelo "solo escala".
+    # Aqui esa promesa pasa a valer para la llamada entera.
+    triaje_maximo: ResultadoTriaje | None = None
     turno_idx: int = 0
     consultas_rag: int = 0
     alerta_id: str | None = None
@@ -74,6 +79,25 @@ class Llamada:
 
     def _nivel_actual(self) -> str:
         return self.triaje.nivel if self.triaje else "verde"
+
+    def _fijar_triaje(self, resultado: ResultadoTriaje) -> ResultadoTriaje:
+        """Publica el veredicto del turno sin permitir que la llamada baje de nivel.
+
+        Un nivel que se alcanzo y despues se retira es un falso negativo con
+        pasos previos, que es la falla que la rubrica llama catastrofica. Si el
+        turno queda por debajo de lo ya alcanzado, se conserva lo alcanzado y se
+        deja anotado de donde venia.
+        """
+        anterior = self.triaje_maximo
+        if anterior and ORDEN_NIVEL[resultado.nivel] < ORDEN_NIVEL[anterior.nivel]:
+            self.triaje = replace(
+                anterior,
+                motivo=f"{anterior.motivo} | Se mantiene: el turno actual no lo revierte.",
+            )
+        else:
+            self.triaje = resultado
+            self.triaje_maximo = resultado
+        return self.triaje
 
     def _mensajes(self, contexto: str) -> list[dict]:
         sistema = "\n\n".join(
@@ -214,11 +238,11 @@ class Llamada:
             resultado = triage.evaluar(
                 self.estado.para_triaje(), self.dia_postop, self.paciente.get("procedimiento", "")
             )
-            self.triaje = resultado
+            self._fijar_triaje(resultado)
         nivel_llm, motivo_llm = (None, "")
         if cambios:
             nivel_llm, motivo_llm = self._segunda_opinion(uso)
-            self.triaje = triage.combinar(resultado, nivel_llm, motivo_llm)
+            self._fijar_triaje(triage.combinar(resultado, nivel_llm, motivo_llm))
 
         nivel = self.triaje.nivel
         yield {
