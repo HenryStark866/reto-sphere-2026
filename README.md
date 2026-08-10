@@ -150,10 +150,10 @@ retira un snapshot, basta cambiar la variable de entorno.
 
 ## 4. Métricas reportadas
 
-> **PENDIENTE DE EJECUCIÓN.** Este bloque se llena ejecutando
-> `python -m scripts.evaluar --modo todo` y una sesión de voz real. Ningún número de esta
-> sección se escribe a mano: todos salen de `logs/`. **No publicar la entrega con este
-> aviso todavía presente.**
+Todos los números de esta sección salen de `logs/turnos.jsonl`, que es lo mismo que agrega
+`GET /api/metricas` y lo mismo que se ve al pie de la consola. Se declara al lado de cada
+tabla **de cuántos turnos sale**, porque la muestra todavía es corta y un percentil sobre
+siete turnos no es un percentil sobre setenta.
 
 ### Latencia
 
@@ -163,20 +163,45 @@ el evento `start` de la síntesis de voz—, así que es el cliente quien cierra
 la reporta al servidor ([`metrics.actualizar_latencia_cliente`](app/metrics.py)).
 Cualquier número medido solo en el servidor sería optimista.
 
+Muestra: **7 turnos de una llamada de voz real**, con micrófono y síntesis del navegador.
+
 | Métrica | Valor |
 |---|---|
-| P50 extremo a extremo | _pendiente_ |
-| P95 extremo a extremo | _pendiente_ |
-| Desglose por etapa (P50) | _pendiente_ |
+| P50 extremo a extremo | **2 520 ms** |
+| P95 extremo a extremo | **3 224 ms** |
+
+Desglose por etapa (mediana sobre los 8 turnos de voz):
+
+| Etapa | P50 |
+|---|---:|
+| Transcripción (Whisper) | 957 ms |
+| Extracción + recuperación, en paralelo | 625 ms |
+| Triaje determinista | 0,0 ms |
+| Hasta el primer token del diálogo (TTFT) | 613 ms |
+| Generación completa del diálogo | 695 ms |
+| Total de servidor | 2 465 ms |
+| Total extremo a extremo medido en el cliente | 2 520 ms |
+
+Los 55 ms entre el total de servidor y el del cliente son lo que tarda el navegador en
+arrancar la síntesis de voz. Que el triaje mida 0,0 ms no es un error de medición: son
+comparaciones contra umbrales sobre una estructura ya en memoria.
 
 ### Consumo
 
+Muestra: **7 turnos de una llamada completa**, los que traen el reparto de tokens por
+modelo.
+
 | Métrica | Valor |
 |---|---|
-| Tokens de entrada / salida por turno | _pendiente_ |
-| Tokens de entrada / salida por llamada | _pendiente_ |
-| Invocaciones al modelo por turno | _pendiente_ |
-| Consultas al RAG por llamada | _pendiente_ |
+| Tokens de entrada / salida por turno | 3 398 / 249 |
+| Tokens de entrada / salida por llamada | 23 788 / 1 744 |
+| Invocaciones al modelo por turno | 2,57 |
+| Consultas al RAG por llamada | 4,0 (sobre 7 turnos) |
+
+Reparto real de esa llamada: `llama-3.1-8b-instant` 7 878 / 1 506 tokens en 11
+invocaciones (extracción y segunda opinión), `llama-3.3-70b-versatile` 15 910 / 238 en 7
+invocaciones (la respuesta hablada). Las invocaciones por turno no son un número entero
+porque la segunda opinión solo corre cuando la extracción cambió algo del estado.
 
 Las consultas al RAG no son una por turno a propósito: se consulta el corpus cuando el
 paciente pregunta algo o cuando hay una bandera que sustentar, no cuando dice "sí" o "ahí
@@ -186,7 +211,10 @@ vamos" ([`conversation._recuperar`](app/agent/conversation.py)).
 
 | Métrica | Valor |
 |---|---|
-| Costo estimado por llamada | _pendiente_ |
+| Costo por turno | US$ 0,00144 |
+| Costo por llamada de 7 turnos | US$ 0,0101 |
+| Transcripción, aparte | US$ 0,00007 por turno de ~6 s de audio |
+| **Costo total estimado por llamada** | **≈ US$ 0,0106** |
 
 **Cómo se calcula.** El nivel gratuito de Groq no cobra, así que se extrapola a precios
 públicos de producción, declarados en [`metrics.PRECIOS_USD_POR_MILLON`](app/metrics.py):
@@ -194,6 +222,12 @@ públicos de producción, declarados en [`metrics.PRECIOS_USD_POR_MILLON`](app/m
 `llama-3.1-8b-instant` a US$0,05 / US$0,08; `whisper-large-v3-turbo` a US$0,04 por hora de
 audio. El costo se acumula por turno con los `usage` reales que devuelve la API —no con
 estimaciones— y queda en cada línea de `logs/turnos.jsonl`.
+
+**Cada modelo se tarifa al suyo.** Un turno mezcla el 8B de la extracción con el 70B de la
+respuesta, y entre los dos hay un factor de doce en el precio de entrada. Cobrar el total
+del turno a la tarifa del 70B —que es lo que hacía una versión anterior de este cálculo—
+sobreestimaba el costo un 88 %. Por eso cada turno registra `tokens_por_modelo` y el costo
+se suma modelo por modelo ([`groq_client.Uso.desglose`](app/llm/groq_client.py)).
 
 **Todo lo anterior es verificable.** Cada turno deja un registro en
 `logs/turnos.jsonl` con sus tiempos por etapa, tokens, invocaciones, citas y costo.
@@ -265,6 +299,68 @@ añadía al historial antes de extraer, y la extracción tomaba `historial[-1]` 
 pregunta del agente" —es decir, la propia frase del paciente—. Sin la pregunta, una
 respuesta como *"un tres"* es ininterpretable. Corregido en
 [`conversation._extraer`](app/agent/conversation.py).
+
+**Un número devuelto como cadena mataba el turno, y lo mataba escalando.** El modelo
+devuelve JSON y de vez en cuando manda `"dolor_nrs": "8"` en vez de `8`. El motor de
+reglas compara ese valor contra el umbral, y `'8' >= 8` levanta un `TypeError` que aborta
+el turno entero: el agente se queda mudo **justo en el turno en el que había que alertar**,
+que es el peor momento posible para quedarse mudo. Apareció en dos casos del arnés antes
+de aparecer en una demo. Ahora `EstadoSintomas.fusionar` normaliza al tipo del esquema
+antes de guardar, y un valor que no se puede interpretar se descarta —que es lo mismo que
+"no se preguntó"— en vez de entrar crudo al estado clínico
+([`schema._normalizar`](app/agent/schema.py)). De paso, una temperatura fuera del rango
+30–45 °C se descarta: es una transcripción mal entendida, no un paciente.
+
+**El costo por llamada estaba sobreestimado un 88 %.** El cálculo tarifaba todos los
+tokens del turno al precio de `llama-3.3-70b-versatile`, incluidos los ~1 900 tokens de
+extracción y segunda opinión que corren en `llama-3.1-8b-instant`, doce veces más barato
+en entrada. La rúbrica desempata por menor costo por llamada *verificado*: un número
+inflado no solo es falso, además juega en contra. Cada turno registra ahora el reparto
+`tokens_por_modelo` y el costo se suma modelo por modelo.
+
+**Un paciente que se aguanta apagaba la alerta.** Es el hallazgo que más cambió el
+sistema, y está contado aparte en la sección que sigue.
+
+### El caso que se escapaba
+
+`caso_tray_pac_42_00017_7`, capa ruidosa. La trayectoria clínica real de ese paciente es
+dolor **9/10**, temperatura 37,9 °C, apetito muy disminuido y arquetipo
+`complicacion_real`. Su criticidad de referencia es **roja**. Esto es lo que dice en la
+llamada:
+
+> *"Ay, no, tranquila doctora, un poquito molesto no más — nada del otro [inaudible], uno aguanta."*
+>
+> *"Me tomé la temperatura ayer, marcó como 37 y algo, nada de escalofríos ni cosas raras, tranquila."*
+>
+> *"Se ve un poquito rojita ahí en el borde, pero nada de esas cosas de pus ni nada raro, yo creo que es normal de la cicatrización."*
+
+El agente le creyó. Extrajo **dolor 2/10** de "un poquito molesto", 37,0 °C de "37 y algo",
+y cerró la llamada en **verde**. Un falso negativo sobre el caso más grave del dataset: la
+falla que la rúbrica llama catastrófica.
+
+Tres cosas fallaron a la vez, y las tres estaban en el diseño, no en el modelo:
+
+**La regla de extracción era asimétrica al revés.** Decía *"no infieras severidad que el
+paciente no expresó; «me molesta un poquito» no es un ocho"*. Eso impide inventar un
+número **alto**, y deja libre inventar uno **bajo** — que es justo el que apaga la alerta.
+Ahora una descripción cualitativa no es ningún número: `dolor_nrs` queda en `null` y el
+agente tiene que pedir la cifra de cero a diez antes de dar el tema por cubierto. Lo mismo
+con "37 y algo": una cifra vaga ya no es una temperatura medida, es una fiebre sin medir,
+que pesa como febrícula.
+
+**El agente no separaba el hecho de la tranquilización del paciente.** "Se ve rojita pero
+es normal de la cicatrización" son dos cosas: un eritema —que es un dato— y una opinión
+del paciente —que no lo es—. El prompt ahora las separa explícitamente y descarta la
+segunda.
+
+**Y las banderas sí se apagaban.** El nivel llegó a amarillo en el turno 2 y volvió a verde
+en el 4, porque `fusionar` dejaba que el último valor pisara al anterior en los campos
+graduados. La protección "una bandera negativa no borra una positiva" solo cubría las
+booleanas. Ahora el estado guarda además el **peor valor observado en la llamada**, y el
+triaje se decide sobre ese ([`EstadoSintomas.para_triaje`](app/agent/schema.py)): el campo
+vivo sigue teniendo lo último que dijo el paciente, porque es lo que la conversación
+necesita para no repreguntar, pero un nueve que después se convierte en tres ya no baja el
+nivel.
 
 ---
 

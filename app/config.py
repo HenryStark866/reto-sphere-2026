@@ -45,6 +45,12 @@ MODEL_STT = _env("MODEL_STT", "whisper-large-v3-turbo")
 # empiece por uno de estos prefijos sigue perteneciendo a la familia Meta Llama.
 FAMILIAS_PERMITIDAS = ("llama", "meta-llama/llama")
 
+# Intentos por llamada al proveedor. El nivel gratuito de Groq limita por
+# tokens por minuto, asi que un 429 puede pedir una espera de decenas de
+# segundos; con pocos intentos el arnes acaba midiendo la cuota de la cuenta y
+# no el sistema. Ver groq_client._con_reintentos.
+LLM_REINTENTOS = _env_int("LLM_REINTENTOS", 5)
+
 TEMPERATURA_DIALOGO = _env_float("TEMPERATURA_DIALOGO", 0.3)
 TEMPERATURA_EXTRACCION = _env_float("TEMPERATURA_EXTRACCION", 0.0)
 # Respuestas habladas: cortas por diseno. Una respuesta larga es inviable en voz.

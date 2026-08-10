@@ -152,15 +152,25 @@ def resumen(ruta: Path | None = None) -> dict:
     for t in turnos:
         c = llamadas.setdefault(
             t.get("llamada_id", "?"),
-            {"turnos": 0, "entrada": 0, "salida": 0, "invocaciones": 0, "rag": 0, "costo": 0.0},
+            {"turnos": 0, "entrada": 0, "salida": 0, "invocaciones": 0, "rag": 0, "costo": 0.0,
+             "turnos_tarifados": 0},
         )
         c["turnos"] += 1
         c["entrada"] += t.get("tokens", {}).get("entrada", 0)
         c["salida"] += t.get("tokens", {}).get("salida", 0)
         c["invocaciones"] += t.get("invocaciones_modelo", 0)
         c["rag"] += t.get("consultas_rag", 0)
-        c["costo"] += t.get("costo_usd", 0.0)
+        # Solo cuentan para el costo los turnos que traen el reparto de tokens
+        # por modelo. Los anteriores se tarifaron con una formula que cobraba
+        # todo a la tarifa del 70B y sobreestimaba el costo; sin el reparto no
+        # se pueden recalcular, y un costo por llamada que mezcla las dos
+        # formulas no cuadraria con los logs.
+        if t.get("tokens_por_modelo"):
+            c["turnos_tarifados"] += 1
+            c["costo"] += t.get("costo_usd", 0.0)
 
+    tarifados = sum(c["turnos_tarifados"] for c in llamadas.values())
+    llamadas_tarifadas = sum(1 for c in llamadas.values() if c["turnos_tarifados"]) or 1
     n = len(llamadas) or 1
     return {
         "turnos": len(turnos),
@@ -196,6 +206,9 @@ def resumen(ruta: Path | None = None) -> dict:
             "tokens_entrada": round(sum(c["entrada"] for c in llamadas.values()) / n, 1),
             "tokens_salida": round(sum(c["salida"] for c in llamadas.values()) / n, 1),
             "consultas_rag": round(sum(c["rag"] for c in llamadas.values()) / n, 2),
-            "costo_usd": round(sum(c["costo"] for c in llamadas.values()) / n, 6),
+            "costo_usd": round(
+                sum(c["costo"] for c in llamadas.values()) / llamadas_tarifadas, 6
+            ),
+            "turnos_con_costo": tarifados,
         },
     }

@@ -18,6 +18,7 @@ Tres modos, uno por riesgo distinto de la rubrica:
 Uso:
     python -m scripts.evaluar --modo triaje
     python -m scripts.evaluar --modo triaje --casos 30 --sin-segunda-opinion
+    python -m scripts.evaluar --modo triaje --etiquetas rojo --hilos 2
     python -m scripts.evaluar --modo rag
     python -m scripts.evaluar --modo adversarial
     python -m scripts.evaluar --modo todo
@@ -101,13 +102,28 @@ class Caso:
         return sum(1 for h, _ in self.turnos if h != "agente")
 
 
-def cargar_casos(capa: str | None = None, limite: int | None = None, semilla: int = 7) -> list[Caso]:
-    """Reconstruye las conversaciones del dataset. Una fila es un turno, no un caso."""
+def cargar_casos(
+    capa: str | None = None,
+    limite: int | None = None,
+    semilla: int = 7,
+    etiquetas: set[str] | None = None,
+) -> list[Caso]:
+    """Reconstruye las conversaciones del dataset. Una fila es un turno, no un caso.
+
+    `etiquetas` restringe a una criticidad de referencia. Existe porque las clases
+    estan desbalanceadas (123 verde / 25 amarillo / 12 rojo): una muestra
+    proporcional de 30 casos deja dos rojos, y el falso negativo -la falla que la
+    rubrica llama catastrofica- es justo lo que hay que medir sobre los rojos.
+    Con cuota gratuita limitada, gastar el presupuesto en los 12 rojos mide mas
+    que repartirlo entre 123 verdes.
+    """
     import pandas as pd
 
     df = pd.read_excel(DATASET_DIR / "dataset_final.xlsx", sheet_name="result")
     if capa:
         df = df[df["capa"] == capa]
+    if etiquetas:
+        df = df[df["label_ground_truth"].isin(etiquetas)]
 
     casos: dict[tuple[str, str], Caso] = {}
     for _, fila in df.sort_values(["caso_id", "capa", "turno_idx"]).iterrows():
@@ -184,7 +200,7 @@ def evaluar_caso(caso: Caso, con_segunda_opinion: bool = True) -> dict:
         cambios = llamada.estado.fusionar(delta)
 
         resultado = triage.evaluar(
-            llamada.estado, caso.dia_postop, paciente.get("procedimiento", "")
+            llamada.estado.para_triaje(), caso.dia_postop, paciente.get("procedimiento", "")
         )
         llamada.triaje = resultado
         if con_segunda_opinion and cambios:
@@ -400,7 +416,14 @@ def imprimir_triaje(resumen: dict) -> None:
 
 
 def modo_triaje(args) -> dict:
-    casos = cargar_casos(capa=args.capa, limite=args.casos, semilla=args.semilla)
+    etiquetas = (
+        {e.strip() for e in args.etiquetas.split(",") if e.strip()}
+        if getattr(args, "etiquetas", None)
+        else None
+    )
+    casos = cargar_casos(
+        capa=args.capa, limite=args.casos, semilla=args.semilla, etiquetas=etiquetas
+    )
     print(f"Reproduciendo {len(casos)} casos "
           f"({'con' if not args.sin_segunda_opinion else 'sin'} segunda opinion del modelo)...")
 
@@ -836,6 +859,9 @@ def main() -> int:
     ap.add_argument("--modo", choices=("triaje", "rag", "adversarial", "todo"), default="triaje")
     ap.add_argument("--casos", type=int, default=None, help="limita el numero de casos de triaje")
     ap.add_argument("--capa", choices=("capa1_limpia", "capa2_ruidosa"), default=None)
+    ap.add_argument("--etiquetas", default=None,
+                    help="criticidades de referencia a evaluar, separadas por coma "
+                         "(p. ej. rojo o rojo,amarillo)")
     ap.add_argument("--hilos", type=int, default=6)
     ap.add_argument("--semilla", type=int, default=7)
     ap.add_argument("--sin-segunda-opinion", action="store_true",

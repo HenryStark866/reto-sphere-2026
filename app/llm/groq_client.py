@@ -18,6 +18,7 @@ from groq import Groq
 
 from app.config import (
     GROQ_API_KEY,
+    LLM_REINTENTOS,
     MAX_TOKENS_DIALOGO,
     MODEL_DIALOGO,
     MODEL_EXTRACCION,
@@ -50,12 +51,42 @@ def cliente() -> Groq:
 
 # Errores que vale la pena reintentar: limite de tasa y fallos transitorios del
 # proveedor. Un 400 por un prompt mal formado no se reintenta nunca.
-REINTENTOS = 3
+REINTENTOS = LLM_REINTENTOS
 _TRANSITORIOS = ("rate_limit", "429", "500", "502", "503", "504", "timeout", "connection")
+
+# Groq dice cuanto falta para que se libere la cuota, en la cabecera
+# `retry-after` y tambien en el texto del error ("Please try again in 10.07s").
+_ESPERA_EN_MENSAJE = re.compile(r"try again in ([\d.]+)\s*s", re.I)
+# Techo de cortesia: una espera mas larga que esto es un proveedor caido, no un
+# limite de tasa, y conviene fallar y dejarlo en el log.
+ESPERA_MAXIMA_S = 65.0
+
+
+def _espera_sugerida(exc: Exception) -> float | None:
+    """Cuanto pide esperar el proveedor, si lo dice.
+
+    El nivel gratuito de Groq limita por tokens por minuto, asi que la ventana
+    que hay que esperar puede ser de decenas de segundos: mucho mas que el
+    2**intento de una espera exponencial ciega. Obedecer el numero que manda la
+    API convierte un 429 en una pausa y no en un turno perdido.
+    """
+    respuesta = getattr(exc, "response", None)
+    cabeceras = getattr(respuesta, "headers", None)
+    if cabeceras:
+        for clave in ("retry-after", "x-ratelimit-reset-tokens", "x-ratelimit-reset-requests"):
+            crudo = cabeceras.get(clave)
+            if not crudo:
+                continue
+            try:
+                return float(str(crudo).rstrip("s"))
+            except ValueError:
+                continue
+    m = _ESPERA_EN_MENSAJE.search(str(exc))
+    return float(m.group(1)) if m else None
 
 
 def _con_reintentos(operacion: Callable[[], Any], descripcion: str) -> Any:
-    """Reintenta con espera exponencial.
+    """Reintenta respetando la espera que pide el proveedor.
 
     Existe por la sesion de evaluacion: un limite de tasa alcanzado a mitad de
     la demo se veria como un agente que se queda mudo. Tambien hace que el
@@ -69,14 +100,20 @@ def _con_reintentos(operacion: Callable[[], Any], descripcion: str) -> Any:
             transitorio = any(t in texto for t in _TRANSITORIOS)
             if not transitorio or intento == REINTENTOS - 1:
                 raise
-            espera = 2**intento + random.random()
+            sugerida = _espera_sugerida(exc)
+            if sugerida is not None and sugerida > ESPERA_MAXIMA_S:
+                raise
+            # El jitter evita que varios hilos del arnes vuelvan a la vez y se
+            # atropellen sobre la misma ventana recien liberada.
+            espera = (sugerida + 0.5 if sugerida is not None else 2**intento) + random.random()
             log.warning(
-                "%s fallo (%s). Reintento %d/%d en %.1fs",
+                "%s fallo (%s). Reintento %d/%d en %.1fs%s",
                 descripcion,
                 type(exc).__name__,
                 intento + 1,
                 REINTENTOS - 1,
                 espera,
+                " (espera pedida por el proveedor)" if sugerida is not None else "",
             )
             time.sleep(espera)
 
@@ -89,12 +126,27 @@ class Uso:
     tokens_salida: int = 0
     invocaciones: int = 0
     modelos: list[str] = field(default_factory=list)
+    # Los tokens tambien se guardan por modelo. Un turno mezcla el 8B (extraccion
+    # y segunda opinion) con el 70B (la respuesta hablada), y entre los dos hay
+    # un factor de doce en el precio: cobrar el total a la tarifa del 70B da un
+    # costo por llamada que no se sostiene si el jurado rehace la cuenta.
+    por_modelo: dict[str, dict[str, int]] = field(default_factory=dict)
 
     def sumar(self, entrada: int, salida: int, modelo: str) -> None:
         self.tokens_entrada += entrada
         self.tokens_salida += salida
         self.invocaciones += 1
         self.modelos.append(modelo)
+        acumulado = self.por_modelo.setdefault(
+            modelo, {"entrada": 0, "salida": 0, "invocaciones": 0}
+        )
+        acumulado["entrada"] += entrada
+        acumulado["salida"] += salida
+        acumulado["invocaciones"] += 1
+
+    def desglose(self) -> list[tuple[str, int, int]]:
+        """(modelo, tokens de entrada, tokens de salida) para tarificar cada uno."""
+        return [(m, v["entrada"], v["salida"]) for m, v in self.por_modelo.items()]
 
     def a_dict(self) -> dict:
         return {
@@ -102,6 +154,7 @@ class Uso:
             "tokens_salida": self.tokens_salida,
             "invocaciones_modelo": self.invocaciones,
             "modelos": self.modelos,
+            "por_modelo": self.por_modelo,
         }
 
 

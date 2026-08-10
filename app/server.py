@@ -296,6 +296,9 @@ async def subir_documento(
     if len(contenido) > MAX_BYTES_SUBIDA:
         raise HTTPException(413, f"El archivo supera {MAX_BYTES_SUBIDA // (1024 * 1024)} MB")
 
+    # En disco lleva una marca de tiempo para que dos subidas homonimas no se
+    # pisen; en el indice se guarda con su nombre real, que es el que el agente
+    # cita en voz alta y el que el jurado contrasta contra la fuente.
     destino = SUBIDAS_DIR / f"tmp_{int(time.time() * 1000)}_{nombre}"
     destino.write_bytes(contenido)
 
@@ -305,6 +308,7 @@ async def subir_documento(
             destino,
             escenario=escenario if escenario in ESCENARIOS else "general",
             origen="consola",
+            nombre=nombre,
         )
     except Exception as exc:
         destino.unlink(missing_ok=True)

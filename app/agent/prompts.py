@@ -38,6 +38,17 @@ sueno. Si el paciente ya menciono algo, no lo vuelvas a preguntar. Si responde \
 de forma evasiva o ambigua, repregunta una vez de otra manera antes de seguir; \
 si vuelve a evadir, dejalo registrado y continua.
 
+- El dolor se pregunta con numero. Si responde con palabras -"ahi vamos", "un \
+poquito", "uno aguanta", "normal"-, todavia no tienes el dato: pidele una sola \
+vez que lo ponga de cero a diez, donde diez es el peor dolor que ha sentido.
+- Con la temperatura igual: si dice una cifra vaga como "37 y algo", pidele el \
+numero exacto una vez.
+- Muchos pacientes se aguantan y restan importancia a lo que sienten. Que el \
+paciente diga que algo es normal no cierra el tema; el dato que necesitas es el \
+hecho, no su tranquilizacion.
+- Si un familiar o cuidador entra a la llamada y ofrece contar como ha visto al \
+paciente, aceptalo y preguntale: suele ver lo que el paciente minimiza.
+
 LIMITES QUE NO CRUZAS
 - No diagnosticas, no descartas diagnosticos y no explicas que le esta pasando.
 - No mencionas ni ajustas medicamentos, dosis, horarios ni tratamientos. Si te \
@@ -115,8 +126,18 @@ def bloque_contexto(pasajes: list[dict], hay_evidencia: bool) -> str:
     return "\n\n".join(lineas)
 
 
-def bloque_estado(estado: EstadoSintomas, triaje_motivo: str, nivel: str) -> str:
+# A partir de este numero de turnos del paciente, un dominio que sigue sin
+# respuesta se da por no respondido y deja de bloquear el cierre. Sin esto, un
+# paciente que nunca da un numero de dolor deja la llamada dando vueltas sobre
+# el mismo tema: el agente ya no puede rellenar el hueco por su cuenta.
+TURNOS_ANTES_DE_RENDIRSE = 9
+
+
+def bloque_estado(
+    estado: EstadoSintomas, triaje_motivo: str, nivel: str, turnos_paciente: int = 0
+) -> str:
     pendientes = estado.dominios_pendientes()
+    insistir = turnos_paciente < TURNOS_ANTES_DE_RENDIRSE
     lineas = [
         "ESTADO DE LA VALORACION",
         f"Recogido hasta ahora: {estado.resumen_legible()}",
@@ -124,6 +145,13 @@ def bloque_estado(estado: EstadoSintomas, triaje_motivo: str, nivel: str) -> str
         f"Nivel de criticidad actual: {nivel.upper()}",
         f"Motivo: {triaje_motivo}",
     ]
+
+    if pendientes and not insistir:
+        lineas.append(
+            "\nYa insististe lo suficiente. Los temas que siguen sin respuesta se "
+            "registran como no respondidos -que no es lo mismo que normales- y no "
+            "vuelves a preguntarlos."
+        )
 
     if nivel == "rojo":
         lineas.append(
@@ -138,9 +166,9 @@ def bloque_estado(estado: EstadoSintomas, triaje_motivo: str, nivel: str) -> str
             "ellos antes de cerrar; no los des por resueltos."
         )
 
-    if not pendientes and nivel == "verde":
+    if (not pendientes or not insistir) and nivel == "verde":
         lineas.append(
-            "\nYa cubriste los seis temas y no hay hallazgos de alarma. Cierra la llamada: "
+            "\nYa recorriste los seis temas y no hay hallazgos de alarma. Cierra la llamada: "
             "resume en una frase lo que entendiste, dile que senales lo deben hacer llamar "
             "a la clinica, y despidete."
         )
@@ -151,10 +179,10 @@ def bloque_estado(estado: EstadoSintomas, triaje_motivo: str, nivel: str) -> str
 # Extraccion estructurada
 # ---------------------------------------------------------------------------
 ESQUEMA_EXTRACCION = {
-    "dolor_nrs": "entero 0-10 si el paciente da o implica una intensidad de dolor, si no null",
+    "dolor_nrs": "entero 0-10 SOLO si el paciente dijo un numero o una equivalencia inequivoca ('un ocho', 'la mitad', 'lo maximo'); si solo lo describio con palabras, null",
     "dolor_subito_severo": "true si describe un dolor que aparecio de golpe y muy fuerte",
-    "fiebre_c": "numero en grados Celsius solo si dio una cifra medida, si no null",
-    "fiebre_subjetiva": "true si dice sentir fiebre o calentura sin haberla medido, false si dice que no ha tenido, null si no se hablo",
+    "fiebre_c": "numero en grados Celsius solo si dio una cifra exacta; si la cifra fue vaga ('37 y algo', 'como 38'), null",
+    "fiebre_subjetiva": "true si dice sentir fiebre o calentura sin haberla medido, o si la midio pero solo dio una cifra vaga; false si dice que no ha tenido, null si no se hablo",
     "herida": "uno de: normal, eritema_leve, secrecion_purulenta, dehiscencia, sangrado_activo, o null",
     "movilidad": "uno de: normal, limitada_esperada, incapacitante_nueva, o null",
     "apetito": "uno de: normal, levemente_disminuido, muy_disminuido, o null",
@@ -181,16 +209,24 @@ Campos y significado:
 Reglas de extraccion:
 - Devuelve null en todo campo sobre el que el paciente no dio informacion en \
 este turno. No arrastres valores de turnos anteriores y no inventes.
-- No infieras severidad que el paciente no expreso. "Me molesta un poquito" no \
-es un ocho.
+- NO CONVIERTAS PALABRAS EN CIFRAS. Una descripcion cualitativa no es un numero, \
+ni alto ni bajo. "Me molesta un poquito", "ahi vamos", "uno aguanta", "nada del \
+otro mundo" NO son un dos: son null en dolor_nrs. "Me esta matando" tampoco es \
+un nueve: es null. El numero lo pone el paciente, no tu.
+- Esta regla corta en los dos sentidos, y el sentido que mas importa es el de \
+abajo: inventar un dolor bajo a partir de un paciente que se aguanta es peor que \
+inventar uno alto, porque apaga una alerta que debia sonar. Ante la duda, null.
 - Interpreta regionalismos colombianos con normalidad: "guayabo" es malestar, \
 "maluco" es sentirse mal, "aguadito" es debilidad, "chichon" o "morado" es \
 hematoma, "materia" o "pus" es secrecion purulenta, "harto" es mucho.
-- Si el paciente minimiza pero describe un hecho objetivo grave, registra el \
-hecho objetivo. Si el paciente exagera pero los hechos son leves, registra los \
-hechos.
-- Si habla un familiar en vez del paciente, extrae igual lo que reporta sobre el \
-paciente.
+- Separa el hecho de la interpretacion del paciente. Muchos pacientes minimizan: \
+dicen el hecho y enseguida lo declaran normal ("se ve rojita pero es normal de \
+la cicatrizacion", "duermo mal pero eso pasa siempre"). Registra el hecho -herida \
+eritema_leve, sueno alterado- e ignora la tranquilizacion. Que el paciente diga \
+que algo es normal no es un dato clinico.
+- Si el paciente exagera pero los hechos son leves, registra los hechos.
+- Si habla un familiar o un cuidador en vez del paciente, extrae igual lo que \
+reporta sobre el paciente: suele ser la fuente menos minimizadora de la llamada.
 - Si el paciente evade o no responde, devuelve todos los campos en null.
 - Un valor false solo se pone si el paciente lo nego explicitamente.\
 """

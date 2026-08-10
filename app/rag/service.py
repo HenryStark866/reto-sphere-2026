@@ -32,13 +32,24 @@ def sha256_archivo(ruta: Path) -> str:
 
 
 def indexar_archivo(
-    ruta: Path, escenario: str = "general", origen: str = "consola", intentar_ocr: bool = True
+    ruta: Path,
+    escenario: str = "general",
+    origen: str = "consola",
+    intentar_ocr: bool = True,
+    nombre: str | None = None,
 ) -> Documento:
+    """Indexa un archivo. `nombre` es como se va a citar el documento.
+
+    El archivo en disco puede llamarse distinto -la consola le antepone una marca
+    de tiempo para que dos subidas con el mismo nombre no se pisen-, pero lo que
+    el agente le lee al paciente y lo que el jurado contrasta contra la fuente es
+    este nombre, no la ruta interna.
+    """
     ruta = Path(ruta)
     extraccion = extract.extraer(ruta, intentar_ocr=intentar_ocr)
     fragmentos = trocear(extraccion)
     doc = obtener_indice().agregar(
-        nombre=ruta.name,
+        nombre=nombre or ruta.name,
         escenario=escenario,
         fragmentos_texto=[(f.texto, f.pagina) for f in fragmentos],
         origen=origen,

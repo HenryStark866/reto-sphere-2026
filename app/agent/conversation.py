@@ -85,6 +85,9 @@ class Llamada:
                     self.estado,
                     self.triaje.motivo if self.triaje else "sin datos aun",
                     self._nivel_actual(),
+                    turnos_paciente=sum(
+                        1 for t in self.historial if t.get("hablante") == "paciente"
+                    ),
                 ),
             ]
         )
@@ -205,9 +208,11 @@ class Llamada:
         cambios = self.estado.fusionar(delta)
 
         # --- triaje --------------------------------------------------------
+        # Se decide sobre el peor valor que se llego a oir en la llamada, no
+        # sobre el ultimo: un paciente que se desdice no apaga una bandera.
         with crono.medir("triaje"):
             resultado = triage.evaluar(
-                self.estado, self.dia_postop, self.paciente.get("procedimiento", "")
+                self.estado.para_triaje(), self.dia_postop, self.paciente.get("procedimiento", "")
             )
             self.triaje = resultado
         nivel_llm, motivo_llm = (None, "")
@@ -299,10 +304,9 @@ class Llamada:
         turno_registrado = self.turno_idx
         self.turno_idx += 1
 
-        costo = costo_usd(
-            [(MODEL_EXTRACCION, 0, 0), (MODEL_DIALOGO, uso.tokens_entrada, uso.tokens_salida)],
-            segundos_audio=seg_audio,
-        )
+        # Cada modelo a su tarifa: el turno mezcla el 8B de la extraccion con el
+        # 70B de la respuesta hablada, y entre los dos hay un factor de doce.
+        costo = costo_usd(uso.desglose(), segundos_audio=seg_audio)
         registrar_turno(
             {
                 "llamada_id": self.llamada_id,
@@ -310,11 +314,13 @@ class Llamada:
                 "paciente_id": self.paciente.get("paciente_id"),
                 "ms": crono.etapas,
                 "tokens": {"entrada": uso.tokens_entrada, "salida": uso.tokens_salida},
+                "tokens_por_modelo": uso.por_modelo,
                 "invocaciones_modelo": uso.invocaciones,
                 "consultas_rag": 1 if pasajes else 0,
                 "citas": len(pasajes),
                 "nivel": nivel,
                 "costo_usd": round(costo, 6),
+                "segundos_audio": round(seg_audio, 2),
                 "modelos": uso.modelos,
             }
         )
