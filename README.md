@@ -267,6 +267,25 @@ provienen únicamente de sesiones de voz reales.
 | Similitud media del mejor pasaje | 0,749 |
 | Índice consultado | 107 documentos · 6 239 fragmentos · 384 dimensiones |
 
+**Triaje** — capa 2, la ruidosa. Dos ejecuciones, evidencia en
+`logs/evaluacion_triaje_rojo_capa2.json` y `logs/evaluacion_triaje_verde_capa2.json`:
+
+| Muestra | Resultado |
+|---|---|
+| 12 casos **rojos** (los 12 del dataset, capa ruidosa) | **12/12 detectados · 0 falsos negativos** · detección en el turno 2,25 de media |
+| 20 casos **verdes** (muestra, capa ruidosa) | **4/20 correctos · 16 sobrestimados** |
+
+Las dos cifras hay que leerlas juntas, y la segunda desmiente la lectura fácil de la
+primera. Sobre una muestra que solo contiene rojos, la precisión sale 1,000 y la
+especificidad 0 % **por construcción**: un agente que escalara absolutamente todo daría
+ese mismo 12/12. Por eso se corrió la contraparte, y la contraparte dice que el agente
+sobre-escala mucho. El diagnóstico y qué se hizo con él están abajo, en *"El 12/12 no era
+lo que parecía"*.
+
+Cero extracciones vacías en los 85 turnos de la corrida de rojos; en la de verdes hubo 29
+sobre 133, porque a mitad de esa ejecución se agotó la cuota diaria de Groq. Eso está
+declarado en el propio JSON y se tiene en cuenta al leerla.
+
 **Robustez adversarial** — 17 entradas hostiles, ejecutado, evidencia en
 `logs/evaluacion_adversarial.json`:
 
@@ -398,13 +417,10 @@ vivo sigue teniendo lo último que dijo el paciente, porque es lo que la convers
 necesita para no repreguntar, pero un nueve que después se convierte en tres ya no baja el
 nivel.
 
-Corregido eso, quedaba un segundo camino por el que el nivel bajaba: la **segunda opinión
-del modelo se recalcula en cada turno**. `triage.combinar` promete que el modelo solo puede
-escalar, y es cierto dentro de un turno; pero una escalada suya en el turno 3 se evaporaba
-en el 4, porque el turno 4 partía otra vez de las reglas. Ahora la llamada recuerda su
-nivel más alto y no publica por debajo de él
-([`Llamada._fijar_triaje`](app/agent/conversation.py)). Es la misma asimetría de siempre:
-un nivel alcanzado y luego retirado es un falso negativo con pasos previos.
+Corregido eso, parecía quedar un segundo camino por el que el nivel bajaba: la **segunda
+opinión del modelo se recalcula en cada turno**, así que una escalada suya en el turno 3 se
+evaporaba en el 4. Se probó a cerrar también ese camino haciendo que la llamada no pudiera
+bajar nunca de nivel. Fue un error, y lo cuenta la sección siguiente.
 
 **El resultado sobre ese caso, mismo paciente y misma capa ruidosa:**
 
@@ -420,6 +436,55 @@ un nivel alcanzado y luego retirado es un falso negativo con pasos previos.
 Y el agente cierra diciéndole al paciente lo que la rúbrica pide que le diga: *"Nelson,
 necesito reportar su caso al personal de salud para que lo contacten, ¿tiene cómo recibir
 esa llamada?"*.
+
+### El 12/12 no era lo que parecía
+
+Con los arreglos anteriores puestos, la corrida sobre los 12 casos rojos de la capa
+ruidosa dio **12/12, cero falsos negativos**. Es un buen número y era, además, un número
+que no probaba nada: la muestra solo contenía rojos, así que un agente que escalara todo
+habría dado exactamente lo mismo.
+
+La contraparte —20 casos verdes de la misma capa— dio **16 de 20 escalados a rojo**. El
+agente se había vuelto un detector de humo que suena con el vapor de la ducha.
+
+El desglose señala al culpable sin ambigüedad:
+
+| | Rojos (12) | Verdes escalados (16) |
+|---|---:|---:|
+| Detectados / escalados **solo por las reglas** | **9** | 2 |
+| Que dependen de una escalada del modelo | 3 | **14** |
+
+Es decir: **las reglas deterministas resolvían 9 de los 12 rojos por sí solas**, mientras
+que el pestillo que acababa de añadir —"la llamada no puede bajar de nivel"— convertía en
+irreversibles escaladas del modelo como esta, sobre un paciente sano:
+
+> *"El paciente menciona un dolor inespecífico y confuso, lo que sugiere un posible
+> problema subyacente que no ha sido detectado."*
+
+**Se revirtió el pestillo.** La monotonía que sí vale es la de las reglas, y ya la
+garantiza `para_triaje`: como se evalúan sobre el peor valor visto en la llamada, su
+veredicto no puede caer, y es reproducible a partir del estado. La segunda opinión del
+modelo es una heurística por turno sin verdad de referencia: se le deja escalar —es su
+única función— pero no se le deja dejar un pestillo puesto.
+
+**Lo que esto deja sin medir, dicho explícitamente.** Las dos corridas de arriba se
+ejecutaron *con* el pestillo. La configuración que se entrega no lo lleva, así que su
+comportamiento real está entre las dos: conserva con certeza los 9 rojos que resuelven las
+reglas, recupera la mayor parte de los 16 verdes, y deja en duda los 3 rojos que
+dependían del modelo. No se pudo volver a medir porque el nivel gratuito de Groq agota
+500 000 tokens al día y se agotaron. **Es lo primero que hay que correr cuando la cuota
+reinicie**, y son dos comandos:
+
+```bash
+python -m scripts.evaluar --modo triaje --etiquetas rojo --capa capa2_ruidosa --hilos 1
+```
+
+```bash
+python -m scripts.evaluar --modo triaje --etiquetas verde --capa capa2_ruidosa --casos 20 --hilos 1
+```
+
+Se deja escrito aquí en vez de esperar a tener el número bonito porque la rúbrica contrasta
+lo que dice el README contra los logs, y en los logs está exactamente esto.
 
 ---
 

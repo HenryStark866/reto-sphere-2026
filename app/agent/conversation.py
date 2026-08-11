@@ -13,7 +13,7 @@ import logging
 import re
 import time
 from concurrent.futures import ThreadPoolExecutor
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass, field
 from typing import Iterator
 
 from app.agent import prompts, triage
@@ -60,10 +60,9 @@ class Llamada:
     estado: EstadoSintomas = field(default_factory=EstadoSintomas)
     historial: list[dict] = field(default_factory=list)
     triaje: ResultadoTriaje | None = None
-    # El nivel mas alto alcanzado en la llamada. La segunda opinion del modelo
-    # se recalcula en cada turno, asi que una escalada suya se evaporaba al
-    # turno siguiente aunque `combinar` prometa que el modelo "solo escala".
-    # Aqui esa promesa pasa a valer para la llamada entera.
+    # El nivel mas alto que llego a alcanzar la llamada. No gobierna lo que se
+    # publica en el turno -eso lo explica `_fijar_triaje`-; queda para que el
+    # resumen del cierre pueda decir por donde paso la conversacion.
     triaje_maximo: ResultadoTriaje | None = None
     turno_idx: int = 0
     consultas_rag: int = 0
@@ -81,21 +80,29 @@ class Llamada:
         return self.triaje.nivel if self.triaje else "verde"
 
     def _fijar_triaje(self, resultado: ResultadoTriaje) -> ResultadoTriaje:
-        """Publica el veredicto del turno sin permitir que la llamada baje de nivel.
+        """Publica el veredicto del turno y recuerda el mas alto de la llamada.
 
-        Un nivel que se alcanzo y despues se retira es un falso negativo con
-        pasos previos, que es la falla que la rubrica llama catastrofica. Si el
-        turno queda por debajo de lo ya alcanzado, se conserva lo alcanzado y se
-        deja anotado de donde venia.
+        Se probo hacer el nivel monotono -que la llamada no pudiera bajar nunca-
+        y la medicion lo desmintio: sobre 20 casos verdes de la capa ruidosa,
+        **16 acabaron en rojo, y 14 de esos 16 por una escalada del modelo que
+        el pestillo volvia irreversible**. El modelo escalaba con motivos como
+        "menciona un dolor inespecifico, lo que sugiere un posible problema
+        subyacente", y eso se quedaba fijo el resto de la llamada.
+
+        La monotonia que si vale es la de las reglas, y ya la garantiza
+        `EstadoSintomas.para_triaje`: como se evaluan sobre el peor valor visto
+        en la llamada, su veredicto no puede caer, y es reproducible a partir
+        del estado. La segunda opinion del modelo es una heuristica por turno
+        sin verdad de referencia: se le deja escalar -que es su unica funcion-
+        pero no se le deja dejar un pestillo puesto.
+
+        `triaje_maximo` se conserva para el resumen del cierre, donde si importa
+        que quede constancia del nivel mas alto que se llego a alcanzar.
         """
-        anterior = self.triaje_maximo
-        if anterior and ORDEN_NIVEL[resultado.nivel] < ORDEN_NIVEL[anterior.nivel]:
-            self.triaje = replace(
-                anterior,
-                motivo=f"{anterior.motivo} | Se mantiene: el turno actual no lo revierte.",
-            )
-        else:
-            self.triaje = resultado
+        self.triaje = resultado
+        if self.triaje_maximo is None or (
+            ORDEN_NIVEL[resultado.nivel] > ORDEN_NIVEL[self.triaje_maximo.nivel]
+        ):
             self.triaje_maximo = resultado
         return self.triaje
 

@@ -458,9 +458,41 @@ criticidad que importa medir: con 123 casos verdes, 25 amarillos y 12 rojos, una
 proporcional de 30 casos deja dos rojos, y el falso negativo sobre un caso rojo es
 justamente la falla que la rúbrica llama catastrófica.
 
-Lo ejecutado y su alcance quedan en `logs/evaluacion_triaje.json` con su bloque
+Lo ejecutado y su alcance quedan en `logs/evaluacion_triaje_*.json` con su bloque
 `configuracion`, que declara capa, etiquetas y semilla. **Lo que no se ejecutó no se
 reporta.**
+
+| Muestra (capa 2, la ruidosa) | Resultado | Extracciones vacías |
+|---|---|---|
+| 12 casos **rojos** — todos los del dataset | 12/12 detectados · 0 falsos negativos · detección en el turno 2,25 | 0 de 85 turnos |
+| 20 casos **verdes** — muestra | 4/20 correctos · 16 sobrestimados | 29 de 133 turnos |
+
+**Las dos cifras se leen juntas o no se leen.** Sobre una muestra que solo contiene rojos,
+precisión y especificidad no significan nada: valen 1,000 y 0 % por construcción, y un
+agente que escalara todo daría el mismo 12/12. La corrida de verdes es la que tiene poder
+de refutación, y refutó.
+
+El desglose por origen del veredicto identifica la causa:
+
+| | Rojos (12) | Verdes escalados (16) |
+|---|---:|---:|
+| Resueltos **solo por las reglas deterministas** | 9 | 2 |
+| Dependientes de una escalada del modelo | 3 | 14 |
+
+Las reglas resolvían 9 de 12 rojos por sí solas. Las 14 sobre-escaladas venían del modelo,
+vueltas irreversibles por un cambio que se había añadido ese mismo día —hacer que la
+llamada no pudiera bajar de nivel— con motivos del tipo *"menciona un dolor inespecífico,
+lo que sugiere un posible problema subyacente"*. Ese cambio se revirtió: la monotonía útil
+es la de las reglas, que `para_triaje` ya garantiza evaluándolas sobre el peor valor visto,
+y que además es reproducible a partir del estado; la del modelo era especulación con
+pestillo.
+
+**Lo que queda sin medir.** Ambas corridas se hicieron *con* el pestillo puesto. La
+configuración entregada no lo lleva, así que su comportamiento real está entre las dos:
+conserva los 9 rojos que resuelven las reglas, recupera la mayor parte de los 16 verdes y
+deja en duda los 3 rojos que dependían del modelo. No se pudo re-medir el mismo día porque
+el nivel gratuito agotó sus 500 000 tokens diarios. Es lo primero que hay que ejecutar
+cuando la cuota reinicie, con los dos comandos del README.
 
 ---
 

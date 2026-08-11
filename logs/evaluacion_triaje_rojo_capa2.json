@@ -1,0 +1,405 @@
+{
+  "resumen": {
+    "casos": 12,
+    "exactitud": 1.0,
+    "matriz_confusion": {
+      "verde": {},
+      "amarillo": {},
+      "rojo": {
+        "rojo": 12
+      }
+    },
+    "por_clase": {
+      "verde": {
+        "soporte": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "amarillo": {
+        "soporte": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      "rojo": {
+        "soporte": 12,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      "macro_f1": 0.3333
+    },
+    "escalamiento": {
+      "sensibilidad": 1.0,
+      "especificidad": 0.0,
+      "verdaderos_positivos": 12,
+      "falsos_negativos": 0,
+      "falsos_positivos": 0,
+      "verdaderos_negativos": 0
+    },
+    "asimetria_clinica": {
+      "subestimados": 0,
+      "sobrestimados": 0,
+      "rojos_no_detectados": 0
+    },
+    "deteccion_temprana": {
+      "casos_detectados": 12,
+      "turno_promedio": 2.25,
+      "turno_p95": 4
+    },
+    "por_capa": {
+      "capa2_ruidosa": {
+        "casos": 12,
+        "aciertos": 12,
+        "exactitud": 1.0,
+        "rojos_perdidos": 0
+      }
+    },
+    "consumo": {
+      "tokens_entrada_por_caso": 9101.1,
+      "tokens_salida_por_caso": 1365.7,
+      "invocaciones_por_caso": 8.58,
+      "invocaciones_por_turno": 1.21,
+      "costo_usd_por_caso": 0.000565
+    },
+    "casos_rojos_no_detectados": [],
+    "configuracion": {
+      "modelo_extraccion": "llama-3.1-8b-instant",
+      "segunda_opinion": true,
+      "capa": "capa2_ruidosa",
+      "semilla": 7,
+      "segundos_totales": 1244.5
+    }
+  },
+  "detalle": [
+    {
+      "caso_id": "caso_tray_pac_42_00017_14",
+      "capa": "capa2_ruidosa",
+      "estilo": "confundido",
+      "dia_postop": 14,
+      "procedimiento": "Colectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Bandera roja: Secrecion purulenta en la herida quirurgica",
+      "origen": "reglas",
+      "banderas": [
+        "herida_purulenta",
+        "fiebre_no_medida",
+        "dolor_sobre_lo_esperado",
+        "movilidad_limitada_tardia",
+        "apetito_muy_disminuido"
+      ],
+      "estado_final": "dolor 5/10; sensacion de fiebre sin termometro; herida: secrecion_purulenta; movilidad: limitada_esperada; apetito: muy_disminuido",
+      "turnos_paciente": 6,
+      "turno_deteccion": 2,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 8035,
+      "tokens_salida": 1184,
+      "invocaciones": 8,
+      "segundos": 80.57,
+      "costo_usd": 0.000496
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00017_7",
+      "capa": "capa2_ruidosa",
+      "estilo": "minimizador_sintomas",
+      "dia_postop": 7,
+      "procedimiento": "Colectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Hallazgos leves aislados, dentro de lo esperable: Refiere sensacion de fiebre sin poder medirla | Escalado por el modelo: La paciente reporta sensación de fiebre sin confirmación objetiva y dolor postoperatorio, lo que podría indicar complicación en la colectomía. | Se mantiene: el turno actual no lo revierte.",
+      "origen": "reglas+llm",
+      "banderas": [
+        "fiebre_no_medida"
+      ],
+      "estado_final": "sensacion de fiebre sin termometro; herida: eritema_leve; apetito: levemente_disminuido; sueno: muy_alterado",
+      "turnos_paciente": 7,
+      "turno_deteccion": 2,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 8999,
+      "tokens_salida": 1432,
+      "invocaciones": 9,
+      "segundos": 102.12,
+      "costo_usd": 0.000565
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00019_14",
+      "capa": "capa2_ruidosa",
+      "estilo": "confundido",
+      "dia_postop": 14,
+      "procedimiento": "Mastectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Bandera roja: Incapacidad nueva para moverse o caminar; Dolor en el pecho",
+      "origen": "reglas",
+      "banderas": [
+        "movilidad_incapacitante",
+        "dolor_toracico",
+        "fiebre_no_medida",
+        "eritema_leve",
+        "dolor_sobre_lo_esperado",
+        "apetito_muy_disminuido",
+        "sueno_muy_alterado"
+      ],
+      "estado_final": "dolor 6/10; sensacion de fiebre sin termometro; herida: eritema_leve; movilidad: incapacitante_nueva; apetito: muy_disminuido; sueno: muy_alterado; dolor toracico",
+      "turnos_paciente": 8,
+      "turno_deteccion": 1,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 9620,
+      "tokens_salida": 1207,
+      "invocaciones": 8,
+      "segundos": 109.72,
+      "costo_usd": 0.000578
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00019_7",
+      "capa": "capa2_ruidosa",
+      "estilo": "colaborativo",
+      "dia_postop": 7,
+      "procedimiento": "Mastectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Bandera roja: Incapacidad nueva para moverse o caminar; Dolor en el pecho",
+      "origen": "reglas",
+      "banderas": [
+        "movilidad_incapacitante",
+        "dolor_toracico",
+        "fiebre_no_medida",
+        "eritema_leve",
+        "dolor_sobre_lo_esperado",
+        "apetito_muy_disminuido",
+        "sueno_muy_alterado"
+      ],
+      "estado_final": "dolor 5/10; sensacion de fiebre sin termometro; herida: eritema_leve; movilidad: incapacitante_nueva; apetito: levemente_disminuido; sueno: muy_alterado; dolor toracico",
+      "turnos_paciente": 7,
+      "turno_deteccion": 1,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 8397,
+      "tokens_salida": 1421,
+      "invocaciones": 7,
+      "segundos": 98.5,
+      "costo_usd": 0.000534
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00026_14",
+      "capa": "capa2_ruidosa",
+      "estilo": "evasivo",
+      "dia_postop": 14,
+      "procedimiento": "Colecistectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Deterioro en varios dominios a la vez (puntaje 8): Refiere sensacion de fiebre sin poder medirla; Enrojecimiento leve alrededor de la herida; Apetito muy disminuido; Sueno muy alterado",
+      "origen": "reglas",
+      "banderas": [
+        "fiebre_no_medida",
+        "eritema_leve",
+        "apetito_muy_disminuido",
+        "sueno_muy_alterado"
+      ],
+      "estado_final": "sensacion de fiebre sin termometro; herida: eritema_leve; movilidad: normal; apetito: muy_disminuido; sueno: muy_alterado",
+      "turnos_paciente": 7,
+      "turno_deteccion": 4,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 9271,
+      "tokens_salida": 1326,
+      "invocaciones": 9,
+      "segundos": 104.8,
+      "costo_usd": 0.00057
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00026_7",
+      "capa": "capa2_ruidosa",
+      "estilo": "confundido",
+      "dia_postop": 7,
+      "procedimiento": "Colecistectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Bandera roja: Secrecion purulenta en la herida quirurgica",
+      "origen": "reglas",
+      "banderas": [
+        "herida_purulenta",
+        "fiebre_no_medida",
+        "dolor_sobre_lo_esperado",
+        "apetito_disminuido_tardio",
+        "sueno_muy_alterado"
+      ],
+      "estado_final": "dolor 6/10; sensacion de fiebre sin termometro; herida: secrecion_purulenta; movilidad: normal; apetito: levemente_disminuido; sueno: muy_alterado",
+      "turnos_paciente": 6,
+      "turno_deteccion": 2,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 8010,
+      "tokens_salida": 1352,
+      "invocaciones": 8,
+      "segundos": 94.04,
+      "costo_usd": 0.000509
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00027_14",
+      "capa": "capa2_ruidosa",
+      "estilo": "minimizador_sintomas",
+      "dia_postop": 14,
+      "procedimiento": "Colectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Hallazgos leves aislados, dentro de lo esperable: Refiere sensacion de fiebre sin poder medirla | Escalado por el modelo: La paciente reporta sensación de fiebre sin termómetro, lo que sugiere una posible infección postoperatoria, especialmente considerando la edad y el procedimiento realizado. | Se mantiene: el turno actual no lo revierte.",
+      "origen": "reglas+llm",
+      "banderas": [
+        "fiebre_no_medida"
+      ],
+      "estado_final": "sensacion de fiebre sin termometro; herida: eritema_leve; movilidad: limitada_esperada; apetito: levemente_disminuido; sueno: levemente_alterado",
+      "turnos_paciente": 8,
+      "turno_deteccion": 3,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 10426,
+      "tokens_salida": 1549,
+      "invocaciones": 10,
+      "segundos": 119.43,
+      "costo_usd": 0.000645
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00027_7",
+      "capa": "capa2_ruidosa",
+      "estilo": "confundido",
+      "dia_postop": 7,
+      "procedimiento": "Colectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Deterioro en varios dominios a la vez (puntaje 10): Refiere sensacion de fiebre sin poder medirla; Enrojecimiento leve alrededor de la herida; Dolor 6/10, por encima de lo esperado en el dia 7; Movilidad aun limitada en fase tardia; Apetito aun disminuido en fase tardia; Sueno muy alterado",
+      "origen": "reglas",
+      "banderas": [
+        "fiebre_no_medida",
+        "eritema_leve",
+        "dolor_sobre_lo_esperado",
+        "movilidad_limitada_tardia",
+        "apetito_disminuido_tardio",
+        "sueno_muy_alterado"
+      ],
+      "estado_final": "dolor 6/10; sensacion de fiebre sin termometro; herida: normal; movilidad: limitada_esperada; apetito: levemente_disminuido; sueno: muy_alterado",
+      "turnos_paciente": 7,
+      "turno_deteccion": 2,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 9092,
+      "tokens_salida": 1320,
+      "invocaciones": 9,
+      "segundos": 105.08,
+      "costo_usd": 0.00056
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00028_14",
+      "capa": "capa2_ruidosa",
+      "estilo": "ansioso",
+      "dia_postop": 14,
+      "procedimiento": "Reemplazo de cadera/rodilla",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Bandera roja: Temperatura 38.1 C (umbral 38.0 C); Incapacidad nueva para moverse o caminar",
+      "origen": "reglas",
+      "banderas": [
+        "fiebre_alta",
+        "movilidad_incapacitante",
+        "eritema_leve",
+        "dolor_sobre_lo_esperado",
+        "apetito_muy_disminuido",
+        "sueno_muy_alterado"
+      ],
+      "estado_final": "dolor 5/10; temperatura 38.1 C; herida: eritema_leve; movilidad: incapacitante_nueva; apetito: muy_disminuido; sueno: muy_alterado",
+      "turnos_paciente": 7,
+      "turno_deteccion": 1,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 8932,
+      "tokens_salida": 1565,
+      "invocaciones": 8,
+      "segundos": 105.42,
+      "costo_usd": 0.000572
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00028_7",
+      "capa": "capa2_ruidosa",
+      "estilo": "minimizador_sintomas",
+      "dia_postop": 7,
+      "procedimiento": "Reemplazo de cadera/rodilla",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Bandera roja: Secrecion purulenta en la herida quirurgica",
+      "origen": "reglas",
+      "banderas": [
+        "herida_purulenta",
+        "fiebre_no_medida",
+        "dolor_sobre_lo_esperado",
+        "sueno_muy_alterado"
+      ],
+      "estado_final": "dolor 5/10; sensacion de fiebre sin termometro; herida: secrecion_purulenta; movilidad: normal; sueno: muy_alterado",
+      "turnos_paciente": 6,
+      "turno_deteccion": 2,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 7955,
+      "tokens_salida": 1287,
+      "invocaciones": 8,
+      "segundos": 92.69,
+      "costo_usd": 0.000501
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00030_14",
+      "capa": "capa2_ruidosa",
+      "estilo": "minimizador_sintomas",
+      "dia_postop": 14,
+      "procedimiento": "Apendicectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Bandera roja: Incapacidad nueva para moverse o caminar",
+      "origen": "reglas",
+      "banderas": [
+        "movilidad_incapacitante",
+        "fiebre_no_medida",
+        "eritema_leve",
+        "apetito_muy_disminuido",
+        "sueno_muy_alterado"
+      ],
+      "estado_final": "sensacion de fiebre sin termometro; herida: eritema_leve; movilidad: incapacitante_nueva; apetito: levemente_disminuido; sueno: muy_alterado",
+      "turnos_paciente": 7,
+      "turno_deteccion": 3,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 8786,
+      "tokens_salida": 1032,
+      "invocaciones": 8,
+      "segundos": 97.06,
+      "costo_usd": 0.000522
+    },
+    {
+      "caso_id": "caso_tray_pac_42_00030_7",
+      "capa": "capa2_ruidosa",
+      "estilo": "evasivo",
+      "dia_postop": 7,
+      "procedimiento": "Apendicectomía",
+      "etiqueta": "rojo",
+      "prediccion": "rojo",
+      "prediccion_maxima": "rojo",
+      "motivo": "Hallazgos leves aislados, dentro de lo esperable: Refiere sensacion de fiebre sin poder medirla | Escalado por el modelo: La paciente refiere sensación de fiebre sin poder medirla, lo que podría ser un indicio de infección postoperatoria, y tiene 16 años, edad de riesgo para complicaciones | Se mantiene: el turno actual no lo revierte.",
+      "origen": "reglas+llm",
+      "banderas": [
+        "fiebre_no_medida"
+      ],
+      "estado_final": "sensacion de fiebre sin termometro; herida: normal; movilidad: normal; apetito: levemente_disminuido; sueno: muy_alterado",
+      "turnos_paciente": 9,
+      "turno_deteccion": 4,
+      "extracciones_vacias": 0,
+      "tokens_entrada": 11690,
+      "tokens_salida": 1713,
+      "invocaciones": 11,
+      "segundos": 135.06,
+      "costo_usd": 0.000722
+    }
+  ]
+}
