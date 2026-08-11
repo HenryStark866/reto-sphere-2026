@@ -182,7 +182,12 @@ def resumen(ruta: Path | None = None) -> dict:
             "total": len(referencia),
         },
         "latencia_por_etapa_p50_ms": {
-            etapa: _percentil(col(etapa), 0.50)
+            # La transcripcion se mediana solo sobre los turnos que de verdad
+            # transcribieron: un turno escrito -el campo de respaldo- no tarda
+            # cero milisegundos en transcribir, es que no transcribe. Contarlo
+            # como cero hundiria la mediana y haria parecer la voz mas rapida de
+            # lo que es. El triaje si puede medir 0,0 ms de verdad.
+            etapa: _percentil([v for v in col(etapa) if etapa != "stt" or v > 0], 0.50)
             for etapa in (
                 "stt",
                 "extraccion_y_recuperacion",
@@ -192,7 +197,7 @@ def resumen(ruta: Path | None = None) -> dict:
                 "servidor_total",
                 "e2e_cliente",
             )
-            if col(etapa)
+            if [v for v in col(etapa) if etapa != "stt" or v > 0]
         },
         "por_turno": {
             "tokens_entrada": round(sum(c["entrada"] for c in llamadas.values()) / len(turnos), 1),

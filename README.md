@@ -163,58 +163,59 @@ el evento `start` de la síntesis de voz—, así que es el cliente quien cierra
 la reporta al servidor ([`metrics.actualizar_latencia_cliente`](app/metrics.py)).
 Cualquier número medido solo en el servidor sería optimista.
 
-Muestra: **7 turnos de una llamada de voz real**, con micrófono y síntesis del navegador.
+**Todo lo de esta sección es la salida literal de `GET /api/metricas`.** Se puede abrir en
+el navegador y contrastar cifra a cifra; si algo no cuadra, manda el endpoint, no el README.
+
+El P50 y el P95 salen **solo de los 7 turnos de una llamada de voz real** —los únicos con
+medición cerrada en el cliente—. Los turnos escritos del campo de respaldo no entran ahí.
 
 | Métrica | Valor |
 |---|---|
 | P50 extremo a extremo | **2 520 ms** |
 | P95 extremo a extremo | **3 224 ms** |
 
-Desglose por etapa (mediana sobre los 8 turnos de voz):
+Desglose por etapa (mediana):
 
 | Etapa | P50 |
 |---|---:|
 | Transcripción (Whisper) | 957 ms |
-| Extracción + recuperación, en paralelo | 625 ms |
+| Extracción + recuperación, en paralelo | 686 ms |
 | Triaje determinista | 0,0 ms |
-| Hasta el primer token del diálogo (TTFT) | 613 ms |
+| Hasta el primer token del diálogo (TTFT) | 554 ms |
 | Generación completa del diálogo | 695 ms |
-| Total de servidor | 2 465 ms |
+| Total de servidor | 2 320 ms |
 | Total extremo a extremo medido en el cliente | 2 520 ms |
 
-Los 55 ms entre el total de servidor y el del cliente son lo que tarda el navegador en
-arrancar la síntesis de voz. Que el triaje mida 0,0 ms no es un error de medición: son
-comparaciones contra umbrales sobre una estructura ya en memoria.
+La transcripción se mediana solo sobre turnos que de verdad transcribieron: un turno
+escrito no tarda cero milisegundos en transcribir, es que no transcribe, y contarlo como
+cero haría parecer la voz más rápida de lo que es. Que el **triaje** sí mida 0,0 ms no es
+un error: son comparaciones contra umbrales sobre una estructura ya en memoria.
 
 ### Consumo
 
-Muestra: **7 turnos de una llamada completa**, los que traen el reparto de tokens por
-modelo.
+Muestra: **22 turnos en 3 llamadas**; de ellos **14 turnos en 2 llamadas** traen el reparto
+de tokens por modelo, que son los que sostienen el costo.
 
 | Métrica | Valor |
 |---|---|
-| Tokens de entrada / salida por turno | 3 398 / 249 |
-| Tokens de entrada / salida por llamada | 23 788 / 1 744 |
-| Invocaciones al modelo por turno | 2,57 |
-| Consultas al RAG por llamada | 4,0 (sobre 7 turnos) |
+| Tokens de entrada / salida por turno | 3 743 / 235 |
+| Tokens de entrada / salida por llamada | 27 446 / 1 724 |
+| Invocaciones al modelo por turno | 2,41 |
+| Consultas al RAG por llamada | 6,0 (sobre 7,3 turnos de media) |
 
-Reparto real de esa llamada: `llama-3.1-8b-instant` 7 878 / 1 506 tokens en 11
-invocaciones (extracción y segunda opinión), `llama-3.3-70b-versatile` 15 910 / 238 en 7
-invocaciones (la respuesta hablada). Las invocaciones por turno no son un número entero
-porque la segunda opinión solo corre cuando la extracción cambió algo del estado.
-
-Las consultas al RAG no son una por turno a propósito: se consulta el corpus cuando el
-paciente pregunta algo o cuando hay una bandera que sustentar, no cuando dice "sí" o "ahí
-vamos" ([`conversation._recuperar`](app/agent/conversation.py)).
+Las invocaciones por turno no son un número entero porque la segunda opinión solo corre
+cuando la extracción cambió algo del estado. Y las consultas al RAG no son una por turno a
+propósito: se consulta el corpus cuando el paciente pregunta algo o cuando hay una bandera
+que sustentar, no cuando dice "sí" o "ahí vamos"
+([`conversation._recuperar`](app/agent/conversation.py)).
 
 ### Costo por llamada
 
 | Métrica | Valor |
 |---|---|
-| Costo por turno | US$ 0,00144 |
-| Costo por llamada de 7 turnos | US$ 0,0101 |
+| Costo por turno | US$ 0,00166 |
+| **Costo estimado por llamada** | **US$ 0,0116** |
 | Transcripción, aparte | US$ 0,00007 por turno de ~6 s de audio |
-| **Costo total estimado por llamada** | **≈ US$ 0,0106** |
 
 **Cómo se calcula.** El nivel gratuito de Groq no cobra, así que se extrapola a precios
 públicos de producción, declarados en [`metrics.PRECIOS_USD_POR_MILLON`](app/metrics.py):

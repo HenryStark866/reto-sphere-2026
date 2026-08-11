@@ -405,33 +405,42 @@ porque una muestra corta declarada vale más que un percentil sin denominador.
 | Corpus indexado | 107 documentos · 6 239 fragmentos · 384 dimensiones |
 | Tiempo de construcción del índice | 5,8 minutos — 345,4 s medidos, evidencia en `logs/construccion_indice.log` |
 
-### 7.2 Latencia — 7 turnos de una llamada de voz real
+### 7.2 Latencia — P50 y P95 sobre 7 turnos de una llamada de voz real
 
 | Métrica | Valor |
 |---|---|
 | P50 extremo a extremo | 2 520 ms |
 | P95 extremo a extremo | 3 224 ms |
 | Transcripción (P50) | 957 ms |
-| Extracción + recuperación en paralelo (P50) | 625 ms |
+| Extracción + recuperación en paralelo (P50) | 686 ms |
 | Triaje determinista (P50) | 0,0 ms |
-| Hasta el primer token del diálogo (P50) | 613 ms |
-| Total de servidor (P50) | 2 465 ms |
+| Hasta el primer token del diálogo (P50) | 554 ms |
+| Total de servidor (P50) | 2 320 ms |
 
-La medición la cierra el navegador cuando arranca la síntesis de voz, no el servidor.
+La medición la cierra el navegador cuando arranca la síntesis de voz, no el servidor. Solo
+los turnos de voz tienen esa medición: los del campo de texto de respaldo quedan fuera del
+percentil.
 
-### 7.3 Consumo y costo — 7 turnos de una llamada completa
+### 7.3 Consumo y costo — 22 turnos en 3 llamadas, 14 de ellos tarifados
 
 | Métrica | Valor |
 |---|---|
-| Tokens de entrada / salida por turno | 3 398 / 249 |
-| Tokens de entrada / salida por llamada | 23 788 / 1 744 |
-| Invocaciones al modelo por turno | 2,57 |
-| Consultas al RAG por llamada | 4,0 |
-| Costo por turno | US$ 0,00144 |
-| **Costo total estimado por llamada** | **≈ US$ 0,0106** (incluida la transcripción) |
+| Tokens de entrada / salida por turno | 3 743 / 235 |
+| Tokens de entrada / salida por llamada | 27 446 / 1 724 |
+| Invocaciones al modelo por turno | 2,41 |
+| Consultas al RAG por llamada | 6,0 |
+| Costo por turno | US$ 0,00166 |
+| **Costo estimado por llamada** | **US$ 0,0116** |
 
-Reparto real: `llama-3.1-8b-instant` 7 878 / 1 506 tokens en 11 invocaciones;
-`llama-3.3-70b-versatile` 15 910 / 238 en 7. Cada uno se tarifa al suyo — ver §6.7.
+Cada modelo se tarifa al suyo — ver §6.7. Todo esto es la salida literal de
+`GET /api/metricas`, que agrega `logs/turnos.jsonl` en vivo.
+
+**Una llamada se apartó del cómputo.** La del 10 de agosto a las 19:33 corrió con la cuota
+diaria de Groq ya agotada: las extracciones fallaban en silencio y la llamada entera salió
+verde sin que nada avisara, con el costo por turno en US$ 0,000000. Está en
+`logs/turnos_descartados.jsonl` con sus datos intactos, fuera del promedio pero disponible
+para quien quiera revisarla. El síntoma —costo cero y TTFT cero— es el que hay que buscar
+antes de creerse cualquier medición hecha sobre el nivel gratuito.
 
 ### 7.4 Robustez adversarial — 17 entradas, `logs/evaluacion_adversarial.json`
 

@@ -31,6 +31,7 @@ logs/*
 !logs/evaluacion_adversarial.json
 !logs/evaluacion_completa.json
 !logs/turnos.jsonl
+!logs/turnos_descartados.jsonl
 
 # El indice construido SI se versiona a proposito (index/): reprocesar 107 PDFs
 # no cabe en los 15 minutos que mide la compuerta de levantamiento.
