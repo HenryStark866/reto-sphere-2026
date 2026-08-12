@@ -153,6 +153,26 @@ que la rúbrica cronometra en 15 minutos. Queda declarada como límite conocido 
 **Sin dependencias de terceros en el navegador:** las tres superficies son HTML, CSS y
 JavaScript planos. No hay CDN, ni framework, ni paso de compilación.
 
+**Instalable como aplicación.** Hay un `manifest.webmanifest` y un service worker, así que
+desde Chrome o Edge se puede instalar (⋮ → *Instalar*) y el sistema se abre en ventana
+propia, con su icono, sin barra de navegador. Con atajos directos a la llamada y a la
+consola.
+
+> **El service worker no cachea nada, y es a propósito.** Está solo porque el navegador
+> exige un manejador de `fetch` para ofrecer la instalación; ese manejador existe pero no
+> intercepta —cada petición va a la red como si el service worker no estuviera—, y al
+> activarse borra cualquier caché que encuentre. Un service worker que cachea es justo lo
+> que puede arruinar una evaluación: el jurado levanta el servidor y el navegador le sirve
+> una versión guardada de otra sesión, un fallo que no se manifiesta como error sino como
+> una interfaz que no corresponde al código. Además aquí no habría nada que cachear con
+> sentido: la conversación es un flujo de eventos contra el servidor y el índice vive en la
+> memoria del proceso, así que un modo sin conexión sería una promesa vacía.
+
+**Accesibilidad.** El nivel de criticidad se anuncia a lectores de pantalla con
+`aria-live="assertive"` —interrumpe, porque es lo único que justifica cortar la lectura— y
+la conversación y las banderas con `aria-live="polite"`. El fondo animado es
+`aria-hidden` y se detiene con `prefers-reduced-motion`.
+
 ### Vigencia del modelo
 
 El stack técnico del reto fija **familias, no versiones**, porque los proveedores retiran

@@ -1,0 +1,50 @@
+{
+  "name": "Sara — seguimiento postoperatorio",
+  "short_name": "Sara",
+  "description": "Agente de voz para seguimiento postoperatorio: conversa con el paciente, fundamenta cada afirmacion clinica en el corpus y decide cuando escalar a personal de salud.",
+  "lang": "es-CO",
+  "dir": "ltr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#04070e",
+  "theme_color": "#04070e",
+  "categories": ["health", "medical", "productivity"],
+  "icons": [
+    {
+      "src": "/static/iconos/icono-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/iconos/icono-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/iconos/icono-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Iniciar una llamada",
+      "short_name": "Llamada",
+      "description": "Abre la interfaz de llamada de voz con el paciente",
+      "url": "/llamada",
+      "icons": [{ "src": "/static/iconos/icono-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Consola de administracion",
+      "short_name": "Consola",
+      "description": "Gestiona el conocimiento clinico y revisa alertas y llamadas",
+      "url": "/consola",
+      "icons": [{ "src": "/static/iconos/icono-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

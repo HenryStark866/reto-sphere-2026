@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Seguimiento postoperatorio por voz</title>
 <link rel="stylesheet" href="/static/base.css">
+<link rel="manifest" href="/static/manifest.webmanifest">
+<meta name="theme-color" content="#04070e">
+<meta name="description" content="Agente de voz para seguimiento postoperatorio: fundamenta cada afirmacion clinica en un corpus documental y decide cuando escalar a personal de salud.">
+<link rel="icon" href="/static/iconos/icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/static/iconos/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
   .tarjetas { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 6px; }
   .tarjeta { display: block; text-decoration: none; color: inherit; }
@@ -128,6 +135,15 @@ fetch('/api/salud').then(r => r.json()).then(s => {
 }).catch(e => {
   document.getElementById('estado').innerHTML = `<span class="vacio">Sin respuesta del servidor: ${e}</span>`;
 });
+</script>
+<script>
+// Registro del service worker. Solo habilita la instalacion: no cachea nada
+// -ver el comentario de sw.js-. Si falla, la aplicacion funciona igual.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

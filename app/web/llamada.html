@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Llamada de seguimiento</title>
 <link rel="stylesheet" href="/static/base.css">
+<link rel="manifest" href="/static/manifest.webmanifest">
+<meta name="theme-color" content="#04070e">
+<meta name="description" content="Agente de voz para seguimiento postoperatorio: fundamenta cada afirmacion clinica en un corpus documental y decide cuando escalar a personal de salud.">
+<link rel="icon" href="/static/iconos/icono-192.png" type="image/png">
+<link rel="apple-touch-icon" href="/static/iconos/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 /* ===========================================================================
    Solo lo especifico de la interfaz de llamada. El tema compartido -paleta,
@@ -173,7 +180,7 @@ main {
 </header>
 
 <main>
-  <div id="avisos"></div>
+  <div id="avisos" role="alert" aria-live="assertive"></div>
 
   <!-- --------------------------------------------------------- preparacion -->
   <div class="panel" id="panel-inicio">
@@ -201,13 +208,15 @@ main {
     <div>
       <div class="panel">
         <h2>Conversacion</h2>
-        <div id="transcripcion"></div>
+        <div id="transcripcion" role="log" aria-live="polite" aria-atomic="false"
+             aria-label="Conversacion con el paciente"></div>
       </div>
 
       <div class="panel">
-        <button id="microfono">Iniciar llamada primero</button>
+        <button id="microfono" aria-live="polite">Iniciar llamada primero</button>
         <div class="fila" style="margin-top:12px">
           <input type="text" id="texto-manual" class="crece"
+                 aria-label="Respaldo sin microfono: escribe lo que diria el paciente"
                  placeholder="Respaldo sin microfono: escribe lo que diria el paciente y pulsa Enter"
                  onkeydown="if(event.key==='Enter') enviarTexto()">
           <button onclick="enviarTexto()">Enviar</button>
@@ -222,14 +231,15 @@ main {
       <div class="panel">
         <h2>Decision del agente</h2>
         <div class="barra-nivel" id="barra-nivel" style="background:var(--borde)"></div>
-        <div id="nivel" class="tenue">SIN DATOS</div>
+        <div id="nivel" class="tenue" role="status" aria-live="assertive"
+             aria-label="Nivel de criticidad">SIN DATOS</div>
         <div id="motivo" class="tenue" style="font-size:13px; margin-top:4px">Esperando el primer turno.</div>
         <div id="origen" class="tenue mono" style="font-size:11.5px; margin-top:6px"></div>
       </div>
 
       <div class="panel">
         <h2>Banderas activas</h2>
-        <div id="banderas"><span class="vacio">Ninguna.</span></div>
+        <div id="banderas" role="status" aria-live="polite"><span class="vacio">Ninguna.</span></div>
       </div>
 
       <div class="panel">
@@ -769,6 +779,15 @@ async function finalizar() {
 }
 
 window.addEventListener('beforeunload', () => speechSynthesis.cancel());
+</script>
+<script>
+// Registro del service worker. Solo habilita la instalacion: no cachea nada
+// -ver el comentario de sw.js-. Si falla, la aplicacion funciona igual.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
 </script>
 </body>
 </html>

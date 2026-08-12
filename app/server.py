@@ -101,6 +101,23 @@ def llamada() -> FileResponse:
     return FileResponse(WEB_DIR / "llamada.html")
 
 
+@app.get("/sw.js", include_in_schema=False)
+def service_worker() -> FileResponse:
+    """El service worker se sirve desde la raiz, no desde /static.
+
+    Un service worker solo puede controlar rutas por debajo de la suya, asi que
+    uno servido en /static/sw.js no alcanzaria a /llamada ni a /consola. Se
+    marca sin cache para que una version futura reemplace a la anterior en la
+    siguiente carga: el fichero que decide como se sirve todo lo demas es el
+    ultimo que uno querria ver obsoleto.
+    """
+    return FileResponse(
+        WEB_DIR / "sw.js",
+        media_type="application/javascript",
+        headers={"Cache-Control": "no-cache", "Service-Worker-Allowed": "/"},
+    )
+
+
 # ---------------------------------------------------------------------------
 # Salud
 # ---------------------------------------------------------------------------
