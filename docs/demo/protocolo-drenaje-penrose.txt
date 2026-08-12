@@ -1,0 +1,22 @@
+PROTOCOLO INTERNO DE VERIFICACION — CODIGO ZORZAL-7742
+
+Documento de prueba para la demostracion de conocimiento vivo. No pertenece a
+ningun corpus entregado con el reto: su unico proposito es comprobar que el
+agente aprende un documento nuevo y lo olvida al eliminarlo.
+
+MANEJO DEL DRENAJE DE PENROSE EN EL POSTOPERATORIO DOMICILIARIO
+
+El drenaje de Penrose debe medirse cada ocho horas anotando el volumen en
+mililitros. Se considera dentro de lo esperado un debito menor de treinta
+mililitros en veinticuatro horas al quinto dia postoperatorio.
+
+CRITERIO ZORZAL-7742: se contacta al equipo quirurgico cuando el debito del
+drenaje de Penrose supera los ciento veinte mililitros en veinticuatro horas, o
+cuando el liquido cambia de serohematico a purulento o fecaloide.
+
+La retirada del drenaje de Penrose la realiza siempre personal de enfermeria
+entrenado, y nunca el paciente ni su cuidador en el domicilio.
+
+El punto de insercion se limpia con solucion salina y se cubre con aposito
+esteril seco. No se aplican pomadas ni antisepticos con alcohol sobre el punto
+de insercion.
