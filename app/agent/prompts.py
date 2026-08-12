@@ -199,7 +199,7 @@ ESQUEMA_EXTRACCION = {
     "disnea": "true si refiere dificultad para respirar o ahogo",
     "dolor_toracico": "true si refiere dolor en el pecho",
     "vomito_persistente": "true si vomita repetidamente y no cede",
-    "intolerancia_oral": "true si no logra retener liquidos ni comida",
+    "intolerancia_oral": "true SOLO si no logra retener NADA por boca, ni siquiera liquidos (vomita todo o no puede tragar). Una dieta restringida NO es intolerancia: 'solo liquidos', 'solo sopa', 'poquito pero como' significan que SI tolera, y van en apetito, no aqui",
     "sin_gases_ni_deposicion": "true si no ha expulsado gases ni ha tenido deposicion",
     "signos_tvp": "true si refiere una pierna hinchada, caliente, roja o dolorosa",
     "ictericia": "true si refiere piel u ojos amarillos",
@@ -237,7 +237,15 @@ que algo es normal no es un dato clinico.
 - Si habla un familiar o un cuidador en vez del paciente, extrae igual lo que \
 reporta sobre el paciente: suele ser la fuente menos minimizadora de la llamada.
 - Si el paciente evade o no responde, devuelve todos los campos en null.
-- Un valor false solo se pone si el paciente lo nego explicitamente.\
+- Un valor false solo se pone si el paciente lo nego explicitamente.
+- LAS BANDERAS DE ALARMA SE MARCAN CON LO QUE EL PACIENTE DIJO, NO CON LO QUE \
+SUGIERE. Los nueve campos de alarma -disnea, dolor_toracico, vomito_persistente, \
+intolerancia_oral, sin_gases_ni_deposicion, signos_tvp, ictericia, sincope y \
+confusion- describen hechos concretos y graves. Marca true unicamente si el \
+paciente describio ese hecho. Una limitacion, una molestia o una version suave \
+del sintoma no es la bandera: "solo tomo liquidos" no es intolerancia oral, \
+"me canso al subir escaleras" no es disnea, "me duele el pecho al toser" no es \
+dolor toracico de alarma, "estoy flojo" no es sincope. Ante la duda, null.\
 """
 
 # ---------------------------------------------------------------------------
@@ -254,8 +262,21 @@ comorbilidad, procedimiento). No estas para tranquilizar ni para bajar el nivel.
 Devuelve UNICAMENTE un JSON:
 {"nivel": "verde|amarillo|rojo", "motivo": "una frase breve"}
 
-Si no ves nada que las reglas hayan pasado por alto, repite el mismo nivel que \
-te dieron. Ante la duda entre dos niveles, elige el mas alto.\
+PARA SUBIR EL NIVEL TIENES QUE PODER NOMBRAR EL HALLAZGO. El motivo debe citar \
+un dato concreto que este en el estado clinico que se te entrega: una cifra, un \
+sintoma reportado, una combinacion de dos hallazgos presentes. Si tu motivo se \
+puede escribir sin mirar el estado -"podria haber algo subyacente", "conviene \
+vigilar", "el cuadro es inespecifico"-, entonces no has visto nada: repite el \
+nivel que te dieron.
+
+El caso normal es repetir el nivel. Las reglas ya cubren fiebre, dolor, herida, \
+movilidad, apetito y sueno con sus umbrales; tu estas para lo que se les escapa, \
+que es poco y no ocurre en la mayoria de las llamadas. Un postoperatorio con \
+molestias leves y sin banderas es un curso normal, no un caso ambiguo.
+
+No inventes sintomas que no aparezcan en el estado clinico, y no cuentes como \
+hallazgo la ausencia de informacion: un dominio que el paciente no respondio \
+todavia no es un hallazgo, es un dato que falta.\
 """
 
 # ---------------------------------------------------------------------------

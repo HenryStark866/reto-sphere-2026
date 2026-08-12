@@ -163,30 +163,44 @@ def evaluar(
     )
 
 
+NIVEL_POR_ORDEN = {v: k for k, v in ORDEN_NIVEL.items()}
+
+
 def combinar(reglas: ResultadoTriaje, nivel_llm: str | None, motivo_llm: str = "") -> ResultadoTriaje:
-    """Fusiona el juicio del modelo con las reglas. El modelo solo puede escalar.
+    """Fusiona el juicio del modelo con las reglas. El modelo solo puede escalar,
+    y como mucho un nivel por encima de lo que dicen las reglas.
 
     Si el modelo ve algo que las reglas no cubren -un sintoma raro, un contexto
     que preocupa- el nivel sube. Si el modelo quiere tranquilizar por debajo de
     una bandera roja, se ignora: esa es exactamente la falla que la rubrica
     castiga como catastrofica.
+
+    El tope de un nivel sale de una medicion, no de una intuicion. Sobre 20
+    casos verdes de la capa ruidosa, 18 acabaron escalados y 14 de ellos por
+    este camino: el modelo saltaba de verde a ROJO directamente, con motivos del
+    tipo "podria haber un problema subyacente". Un salto de dos niveles es
+    precisamente el que no se apoya en nada que las reglas hayan visto. Con el
+    tope, esa sospecha sigue llegando a un humano -amarillo tambien escala- pero
+    sin declarar una emergencia que nadie puede sustentar.
     """
     if not nivel_llm or nivel_llm not in ORDEN_NIVEL:
         return reglas
 
-    if ORDEN_NIVEL[nivel_llm] > ORDEN_NIVEL[reglas.nivel]:
-        return ResultadoTriaje(
-            nivel=nivel_llm,  # type: ignore[arg-type]
-            banderas_rojas=reglas.banderas_rojas,
-            banderas_amarillas=reglas.banderas_amarillas,
-            puntaje=reglas.puntaje,
-            motivo=(
-                f"{reglas.motivo} | Escalado por el modelo: {motivo_llm}"
-                if motivo_llm
-                else f"{reglas.motivo} | Escalado por el modelo."
-            ),
-            origen="reglas+llm",
-            escalar=nivel_llm in ("amarillo", "rojo"),
-        )
+    if ORDEN_NIVEL[nivel_llm] <= ORDEN_NIVEL[reglas.nivel]:
+        return reglas
 
-    return reglas
+    tope = min(ORDEN_NIVEL[nivel_llm], ORDEN_NIVEL[reglas.nivel] + 1)
+    nivel_final = NIVEL_POR_ORDEN[tope]
+    nota = f"Escalado por el modelo: {motivo_llm}" if motivo_llm else "Escalado por el modelo."
+    if tope < ORDEN_NIVEL[nivel_llm]:
+        nota += f" (pedia {nivel_llm}; se limita a un nivel sobre las reglas)"
+
+    return ResultadoTriaje(
+        nivel=nivel_final,  # type: ignore[arg-type]
+        banderas_rojas=reglas.banderas_rojas,
+        banderas_amarillas=reglas.banderas_amarillas,
+        puntaje=reglas.puntaje,
+        motivo=f"{reglas.motivo} | {nota}",
+        origen="reglas+llm",
+        escalar=nivel_final in ("amarillo", "rojo"),
+    )

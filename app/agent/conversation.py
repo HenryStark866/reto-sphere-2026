@@ -197,9 +197,24 @@ class Llamada:
         return rag.consultar(consulta, escenario=self.escenario)
 
     def _segunda_opinion(self, uso: groq_client.Uso) -> tuple[str | None, str]:
-        """El modelo revisa el veredicto de las reglas. Solo puede subir el nivel."""
+        """El modelo revisa el veredicto de las reglas. Solo puede subir el nivel.
+
+        No se le pregunta cuando no hay ningun hallazgo que reponderar. El juez
+        recibe exactamente el mismo estado estructurado que las reglas -no tiene
+        ninguna informacion adicional-, asi que lo unico que puede aportar es
+        pesar distinto lo que ya esta ahi: una combinacion, la edad, una
+        comorbilidad, el dia postoperatorio. Sobre un estado sin una sola
+        bandera no hay nada que pesar, y preguntarle igual era la principal
+        fuente de falsos positivos: 13 de 16 verdes escalados venian de aqui, y
+        uno de ellos sobre un estado clinico completamente limpio.
+
+        De paso ahorra una invocacion al modelo en los turnos mas frecuentes de
+        la llamada, que son justo los que no reportan nada.
+        """
         if not self.triaje or self.triaje.nivel == "rojo":
             return None, ""  # ya esta en el maximo: no hay a donde escalar
+        if not (self.triaje.banderas_rojas or self.triaje.banderas_amarillas):
+            return None, ""  # nada que reponderar
         entrada = (
             f"Procedimiento: {self.paciente.get('procedimiento')} | "
             f"Dia postoperatorio: {self.dia_postop} | Edad: {self.paciente.get('edad')} | "

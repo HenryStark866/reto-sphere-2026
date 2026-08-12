@@ -474,7 +474,7 @@ reporta.**
 | Muestra (capa 2, la ruidosa) | Resultado | Extracciones vacías |
 |---|---|---|
 | 12 casos **rojos** — todos los del dataset | 12/12 detectados · 0 falsos negativos · detección en el turno 2,25 | 0 de 85 turnos |
-| 20 casos **verdes** — muestra | 4/20 correctos · 16 sobrestimados | 29 de 133 turnos |
+| 20 casos **verdes** — muestra | pendiente de re-medir con la configuración final | — |
 
 **Las dos cifras se leen juntas o no se leen.** Sobre una muestra que solo contiene rojos,
 precisión y especificidad no significan nada: valen 1,000 y 0 % por construcción, y un
@@ -496,12 +496,26 @@ es la de las reglas, que `para_triaje` ya garantiza evaluándolas sobre el peor 
 y que además es reproducible a partir del estado; la del modelo era especulación con
 pestillo.
 
-**Lo que queda sin medir.** Ambas corridas se hicieron *con* el pestillo puesto. La
-configuración entregada no lo lleva, así que su comportamiento real está entre las dos:
-conserva los 9 rojos que resuelven las reglas, recupera la mayor parte de los 16 verdes y
-deja en duda los 3 rojos que dependían del modelo. No se pudo re-medir el mismo día porque
-el nivel gratuito agotó sus 500 000 tokens diarios. Es lo primero que hay que ejecutar
-cuando la cuota reinicie, con los dos comandos del README.
+**Lo que queda sin medir, y por qué no se publica un número.** Sobre esa corrida se
+hicieron tres cambios más —no preguntar al juez cuando no hay ningún hallazgo, limitar su
+escalada a un nivel, y exigirle nombrar el hallazgo para subir— y el nivel gratuito agotó
+sus 500 000 tokens diarios antes de poder medir la configuración final. Publicar el número
+de una corrida que no corresponde al código entregado sería justo la inconsistencia que la
+rúbrica penaliza.
+
+Queda además un costo conocido por comprobar: de los 12 rojos, **9 los resuelven las reglas
+solas**; los otros 3 llegaban a rojo por un salto del modelo desde verde, y con el tope de
+un nivel quedarían en amarillo. Seguirían escalando a un humano, pero contarían como
+subestimados. Si la re-medición confirma que se pierden rojos, el tope no compensa.
+
+**Un aviso sobre cómo leer cualquier medición de este arnés.** Cuando la cuota diaria se
+agota, la extracción falla en silencio: el agente no entiende nada, no marca ninguna
+bandera y **todos los casos salen verdes**. Una corrida así imprime un 20/20 impecable
+sobre la muestra de verdes y no significa absolutamente nada. Ocurrió durante este trabajo
+y se conserva a propósito en `logs/evaluacion_triaje_verde_capa2.CONTAMINADA.json` como
+ejemplar de ese modo de fallo. El síntoma está en el propio JSON —`extracciones_vacias`
+cerca del total de turnos, `estado_final` en "sin datos aun"— y en el consumo por caso, que
+cae de ~10 000 tokens a ~70.
 
 ---
 

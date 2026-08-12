@@ -283,6 +283,44 @@ def completar_json(
 # ---------------------------------------------------------------------------
 # Voz a texto
 # ---------------------------------------------------------------------------
+# Orienta la transcripcion hacia el dominio de la llamada: con esta pista
+# Whisper acierta mucho mas con "febricula", "apendicectomia" o "eritema".
+PROMPT_STT = (
+    "Llamada de seguimiento postoperatorio en Colombia. El paciente "
+    "describe dolor, fiebre, la herida quirurgica, movilidad, apetito y sueno."
+)
+
+
+MIN_PALABRAS_ECO = 4
+
+
+def _palabras(texto: str) -> list[str]:
+    return re.sub(r"[^\w\s]", " ", texto.lower()).split()
+
+
+def _es_eco_del_prompt(texto: str) -> bool:
+    """True si Whisper devolvio su propia pista en vez de lo que se oyo.
+
+    Ante audio vacio o puro ruido, Whisper tiende a repetir el prompt que se le
+    dio. Eso entraba en la conversacion como un turno del paciente diciendo
+    "Llamada de seguimiento postoperatorio en Colombia", que el agente contestaba
+    como si el paciente hubiera hablado. Aparecio en una llamada real.
+
+    La comparacion es por palabras completas y consecutivas, y exige un minimo
+    de cuatro. Comparar por subcadena descartaba un "No" del paciente, porque
+    esas dos letras aparecen dentro de "sueno" en la pista: perder una negacion
+    es mucho peor que dejar pasar un eco.
+    """
+    palabras = _palabras(texto)
+    if not palabras:
+        return True
+    if len(palabras) < MIN_PALABRAS_ECO:
+        return False
+    pista = _palabras(PROMPT_STT)
+    n = len(palabras)
+    return any(pista[i : i + n] == palabras for i in range(len(pista) - n + 1))
+
+
 def transcribir(audio: bytes, nombre_archivo: str = "turno.webm") -> tuple[str, float]:
     """Devuelve (texto, milisegundos). Whisper Large V3 en la misma cuenta de Groq."""
     inicio = time.perf_counter()
@@ -292,13 +330,13 @@ def transcribir(audio: bytes, nombre_archivo: str = "turno.webm") -> tuple[str, 
             model=MODEL_STT,
             language="es",
             response_format="json",
-            # Orienta la transcripcion hacia el dominio de la llamada.
-            prompt=(
-                "Llamada de seguimiento postoperatorio en Colombia. El paciente "
-                "describe dolor, fiebre, la herida quirurgica, movilidad, apetito y sueno."
-            ),
+            prompt=PROMPT_STT,
         ),
         "transcribir",
     )
     ms = (time.perf_counter() - inicio) * 1000
-    return (respuesta.text or "").strip(), ms
+    texto = (respuesta.text or "").strip()
+    if _es_eco_del_prompt(texto):
+        log.info("Transcripcion descartada por ser eco del prompt: %.60s", texto)
+        return "", ms
+    return texto, ms

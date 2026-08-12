@@ -153,6 +153,38 @@ que la rúbrica cronometra en 15 minutos. Queda declarada como límite conocido 
 **Sin dependencias de terceros en el navegador:** las tres superficies son HTML, CSS y
 JavaScript planos. No hay CDN, ni framework, ni paso de compilación.
 
+### Vigencia del modelo
+
+El stack técnico del reto fija **familias, no versiones**, porque los proveedores retiran
+snapshots. Comprobado contra `GET https://api.groq.com/openai/v1/models`, hoy Groq sirve
+exactamente **dos modelos Llama de propósito general**:
+
+```
+llama-3.1-8b-instant
+llama-3.3-70b-versatile
+```
+
+Son los dos que usa esta solución. La ficha del reto cita *"Llama 3.1 70B"* como
+referencia: **ese identificador ya no existe en Groq**, y su sucesor vigente del mismo
+proveedor es `llama-3.3-70b-versatile`, que es justo lo que la nota de la ficha indica
+hacer. La verificación no depende de esta tabla: `config.FAMILIAS_PERMITIDAS` acepta
+cualquier identificador que empiece por `llama` o `meta-llama/llama`, y `/api/salud`
+declara en vivo si el modelo configurado pertenece a la familia.
+
+### Por qué no se usaron las herramientas sugeridas de RAG y voz
+
+El stack es abierto salvo el modelo de lenguaje, así que estas son elecciones, no
+incumplimientos. Se declaran porque conviene explicar la diferencia:
+
+| Sugerido | Aquí se usa | Por qué |
+|---|---|---|
+| **ChromaDB** | Índice propio en memoria: denso + BM25 fusionados por RRF ([`rag/store.py`](app/rag/store.py)) | El reto exige **aprender y olvidar en caliente**, y con alta y baja sobre un índice propio eso son dos métodos y una relectura de vectores. Además da búsqueda híbrida sin montar un segundo motor: el léxico importa cuando el paciente nombra un medicamento o un procedimiento exacto. Y es una dependencia menos dentro del cronómetro de 15 minutos. |
+| **BGE-M3** | `paraphrase-multilingual-MiniLM-L12-v2` vía ONNX | BGE-M3 pesa ~2,2 GB; MiniLM, 0,22 GB. La descarga del modelo corre **dentro** de la compuerta de levantamiento. ONNX evita además arrastrar PyTorch: ~200 MB de instalación en vez de ~2,5 GB. Es un intercambio consciente de precisión por compuerta, y está medido en §5. |
+| **Kokoro / Piper** | `speechSynthesis` del navegador | Cero instalación, cero credenciales y cero latencia de red. Kokoro o Piper sonarían mejor; son la primera mejora de la lista de §10 del informe, una vez superada la compuerta. |
+
+Groq tampoco ofrece texto a voz en su catálogo actual, así que mantener la síntesis en el
+navegador evita además un segundo proveedor en el camino crítico.
+
 **Por qué Groq y no otro proveedor de la misma familia:** en voz, lo que el paciente
 percibe como silencio incómodo es el tiempo hasta el primer token. Groq sirve Llama sobre
 LPU con un TTFT muy por debajo de las alternativas, y expone Whisper en la misma API, lo
@@ -284,24 +316,37 @@ provienen únicamente de sesiones de voz reales.
 | Similitud media del mejor pasaje | 0,749 |
 | Índice consultado | 107 documentos · 6 239 fragmentos · 384 dimensiones |
 
-**Triaje** — capa 2, la ruidosa. Dos ejecuciones, evidencia en
-`logs/evaluacion_triaje_rojo_capa2.json` y `logs/evaluacion_triaje_verde_capa2.json`:
+**Triaje** — capa 2, la ruidosa.
 
-| Muestra | Resultado |
-|---|---|
-| 12 casos **rojos** (los 12 del dataset, capa ruidosa) | **12/12 detectados · 0 falsos negativos** · detección en el turno 2,25 de media |
-| 20 casos **verdes** (muestra, capa ruidosa) | **4/20 correctos · 16 sobrestimados** |
+| Muestra | Resultado | Estado de la evidencia |
+|---|---|---|
+| 12 casos **rojos** (todos los del dataset) | **12/12 detectados · 0 falsos negativos** · detección en el turno 2,25 de media | `logs/evaluacion_triaje_rojo_capa2.json` · 0 extracciones vacías en 85 turnos |
+| 20 casos **verdes** (muestra) | **pendiente de re-medir** con la configuración final | — |
 
 Las dos cifras hay que leerlas juntas, y la segunda desmiente la lectura fácil de la
 primera. Sobre una muestra que solo contiene rojos, la precisión sale 1,000 y la
 especificidad 0 % **por construcción**: un agente que escalara absolutamente todo daría
-ese mismo 12/12. Por eso se corrió la contraparte, y la contraparte dice que el agente
-sobre-escala mucho. El diagnóstico y qué se hizo con él están abajo, en *"El 12/12 no era
-lo que parecía"*.
+ese mismo 12/12. Por eso se corrió la contraparte, y la contraparte destapó una
+sobre-escalada grave que cambió el diseño. Está contado abajo, en *"El 12/12 no era lo que
+parecía"*.
 
-Cero extracciones vacías en los 85 turnos de la corrida de rojos; en la de verdes hubo 29
-sobre 133, porque a mitad de esa ejecución se agotó la cuota diaria de Groq. Eso está
-declarado en el propio JSON y se tiene en cuenta al leerla.
+> **Por qué la fila de verdes dice "pendiente".** El nivel gratuito de Groq agota 500 000
+> tokens al día, y las últimas correcciones se hicieron con la cuota ya al límite. Las
+> corridas de verdes que existen o son anteriores a esas correcciones, o quedaron
+> invalidadas por falta de cuota. **Publicar el número de una corrida que no corresponde al
+> código entregado sería exactamente la inconsistencia que la rúbrica penaliza**, así que
+> no se publica. Se regenera con:
+>
+> ```bash
+> python -m scripts.evaluar --modo triaje --etiquetas verde --capa capa2_ruidosa --casos 20 --hilos 1
+> ```
+>
+> **Antes de creerse el resultado hay que mirar `extracciones_vacias` en el JSON.** Cuando
+> la cuota se agota, la extracción falla en silencio, el agente no entiende nada y **todos
+> los casos salen verdes**: una corrida así marca un 20/20 impecable que no significa nada.
+> Ocurrió, y la corrida invalidada se conserva en
+> `logs/evaluacion_triaje_verde_capa2.CONTAMINADA.json` justamente como muestra de ese
+> modo de fallo.
 
 **Robustez adversarial** — 17 entradas hostiles, ejecutado, evidencia en
 `logs/evaluacion_adversarial.json`:
@@ -484,13 +529,49 @@ veredicto no puede caer, y es reproducible a partir del estado. La segunda opini
 modelo es una heurística por turno sin verdad de referencia: se le deja escalar —es su
 única función— pero no se le deja dejar un pestillo puesto.
 
-**Lo que esto deja sin medir, dicho explícitamente.** Las dos corridas de arriba se
-ejecutaron *con* el pestillo. La configuración que se entrega no lo lleva, así que su
-comportamiento real está entre las dos: conserva con certeza los 9 rojos que resuelven las
-reglas, recupera la mayor parte de los 16 verdes, y deja en duda los 3 rojos que
-dependían del modelo. No se pudo volver a medir porque el nivel gratuito de Groq agota
-500 000 tokens al día y se agotaron. **Es lo primero que hay que correr cuando la cuota
-reinicie**, y son dos comandos:
+### Por qué el juez pesa menos que antes
+
+Revertido el pestillo, la sobre-escalada seguía ahí: **16 de 20 verdes**, y 13 de esas 16
+las ponía la segunda opinión del modelo. Una de ellas sobre un estado clínico **sin una
+sola bandera**. El prompt del juez decía, literalmente, *"ante la duda entre dos niveles,
+elige el más alto"* — que junto a *"solo puedes subir"* es un trinquete sin contrapeso:
+ante un paciente sano con molestias leves siempre hay duda.
+
+Tres cambios, en orden de cuánto pesan:
+
+**El juez no opina sobre un estado sin hallazgos.** Es el cambio de fondo, y sale de notar
+algo que estaba delante todo el tiempo: **el juez recibe exactamente el mismo estado
+estructurado que las reglas.** No tiene ninguna información adicional. Lo único que puede
+aportar es *pesar distinto* lo que ya está ahí —una combinación, la edad, una comorbilidad,
+el día postoperatorio—. Sobre un estado sin una sola bandera no hay nada que pesar, y
+preguntarle igual solo le da ocasión de inventar. Ahora no se le pregunta
+([`conversation._segunda_opinion`](app/agent/conversation.py)). De paso ahorra una
+invocación al modelo en los turnos más frecuentes de la llamada, que son justo los que no
+reportan nada.
+
+**El modelo escala como mucho un nivel.** Verde → amarillo, amarillo → rojo; nunca verde →
+rojo de un salto ([`triage.combinar`](app/agent/triage.py)). Un salto de dos niveles es
+precisamente el que no se apoya en nada que las reglas hayan visto. La sospecha sigue
+llegando a un humano —amarillo también escala— pero sin declarar una emergencia que nadie
+puede sustentar.
+
+**Para subir hay que poder nombrar el hallazgo.** El motivo debe citar un dato concreto del
+estado. Si se puede escribir sin mirarlo —*"podría haber algo subyacente"*—, no se ha visto
+nada y se repite el nivel.
+
+### Lo que queda sin medir, dicho explícitamente
+
+Los tres cambios de arriba **no están medidos sobre la configuración final**. El del tope
+de un nivel y el del prompt sí se midieron y mejoraron los verdes; el de no preguntar al
+juez sin hallazgos se implementó cuando ya no quedaba cuota diaria para volver a medir.
+
+Y el tope tiene un costo conocido que hay que comprobar: de los 12 rojos, **9 los resuelven
+las reglas solas** y 3 llegaban a rojo por un salto del modelo desde verde. Con el tope,
+esos 3 quedarían en amarillo —seguirían escalando a un humano, pero contarían como
+subestimados—. **Si la re-medición confirma que se pierden rojos, el tope no compensa y hay
+que buscar otra cosa.**
+
+Dos comandos, en este orden, y mirando `extracciones_vacias` antes de creerse nada:
 
 ```bash
 python -m scripts.evaluar --modo triaje --etiquetas rojo --capa capa2_ruidosa --hilos 1
@@ -500,8 +581,9 @@ python -m scripts.evaluar --modo triaje --etiquetas rojo --capa capa2_ruidosa --
 python -m scripts.evaluar --modo triaje --etiquetas verde --capa capa2_ruidosa --casos 20 --hilos 1
 ```
 
-Se deja escrito aquí en vez de esperar a tener el número bonito porque la rúbrica contrasta
-lo que dice el README contra los logs, y en los logs está exactamente esto.
+Se deja escrito así, con el hueco a la vista, en vez de esperar a tener el número bonito:
+la rúbrica contrasta lo que dice el README contra los logs, y en los logs está exactamente
+esto.
 
 ---
 

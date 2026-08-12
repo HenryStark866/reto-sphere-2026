@@ -27,7 +27,6 @@ logs/*
 !logs/evaluacion_rag.json
 !logs/evaluacion_triaje.json
 !logs/evaluacion_triaje_rojo_capa2.json
-!logs/evaluacion_triaje_verde_capa2.json
 !logs/evaluacion_adversarial.json
 !logs/evaluacion_completa.json
 !logs/turnos.jsonl

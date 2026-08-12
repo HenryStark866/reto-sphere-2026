@@ -75,6 +75,26 @@ comprobación es de familia y no de versión: [`config.FAMILIAS_PERMITIDAS`](../
 acepta cualquier identificador que empiece por `llama` o `meta-llama/llama`, de modo que
 retirar un snapshot no rompe la compuerta.
 
+**Y son los vigentes.** Consultado el catálogo del proveedor:
+
+```bash
+curl -s https://api.groq.com/openai/v1/models -H "Authorization: Bearer $GROQ_API_KEY"
+```
+
+Groq sirve hoy exactamente dos modelos Llama de propósito general —`llama-3.1-8b-instant`
+y `llama-3.3-70b-versatile`— más dos clasificadores Prompt Guard, que no son modelos de
+diálogo. Los dos de propósito general son los que usa esta solución: **no hay un Llama más
+reciente en el proveedor al que migrar**.
+
+El resto del catálogo (`openai/gpt-oss-*`, `qwen/*`, `allam-*`, `groq/compound*`,
+`canopylabs/orpheus-*`) queda **fuera de las familias permitidas** y no se usa en ninguna
+ruta del código. `whisper-large-v3-turbo`, que sí se usa, es transcripción y no el modelo
+que razona.
+
+La ficha del reto cita *"Llama 3.1 70B"* como referencia. Ese identificador ya no está
+disponible en Groq, y la propia ficha indica usar el sucesor vigente del mismo proveedor:
+`llama-3.3-70b-versatile`.
+
 ---
 
 ## G4 — Conversación de voz en tiempo real
