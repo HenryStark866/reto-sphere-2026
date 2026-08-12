@@ -6,38 +6,297 @@
 <title>Llamada de seguimiento</title>
 <link rel="stylesheet" href="/static/base.css">
 <style>
-  .columnas { display: grid; grid-template-columns: 1fr 400px; gap: 16px; align-items: start; }
-  @media (max-width: 1100px) { .columnas { grid-template-columns: 1fr; } }
+/* ===========================================================================
+   Tema de la interfaz de llamada: estacion de monitorizacion clinica.
+   Va aqui y no en base.css a proposito: la consola de administracion conserva
+   su aspecto sobrio. Nada de esto cambia el contrato funcional -los mismos
+   identificadores, las mismas clases y los mismos colores semanticos de
+   triaje-, solo la presentacion.
+   =========================================================================== */
+:root {
+  --fondo: #04070e;
+  --panel: rgba(14, 22, 38, .72);
+  --panel-2: rgba(24, 36, 58, .8);
+  --borde: rgba(94, 145, 190, .22);
+  --texto: #dfeaf5;
+  --tenue: #7e97b3;
+  --acento: #22d3ee;
+  --acento-2: #0ea5b7;
+  --verde: #10b981;
+  --amarillo: #f0b429;
+  --rojo: #f0413c;
+  --radio: 12px;
+}
 
-  #transcripcion { height: 46vh; min-height: 300px; overflow-y: auto; padding-right: 6px; }
-  .burbuja { max-width: 82%; padding: 10px 14px; border-radius: 14px; margin-bottom: 10px; font-size: 14.5px; }
-  .burbuja.agente { background: var(--panel-2); border: 1px solid var(--borde); border-bottom-left-radius: 4px; }
-  .burbuja.paciente { background: #1f3a5f; margin-left: auto; border-bottom-right-radius: 4px; }
-  .burbuja .quien { font-size: 11px; text-transform: uppercase; letter-spacing: .07em; color: var(--tenue); margin-bottom: 3px; }
+/* --------------------------------------------------------------- estructura */
+html, body { height: 100%; }
+body {
+  background: var(--fondo);
+  overflow: hidden;               /* una sola barra de desplazamiento, la de main */
+  letter-spacing: .005em;
+}
+/* El desplazamiento vive en `main`, no en el `body`: si lo llevara el body, el
+   resumen que aparece al cerrar la llamada quedaria fuera de pantalla y sin
+   forma de llegar a el, y `scrollIntoView` no tendria donde desplazarse. */
+main {
+  padding: 12px 16px; max-width: 1680px;
+  height: calc(100vh - 43px); overflow-y: auto;
+  display: flex; flex-direction: column;
+}
 
-  #microfono {
-    width: 100%; padding: 20px; font-size: 17px; font-weight: 600;
-    border-radius: 12px; border: 2px solid var(--borde); background: var(--panel-2);
-    user-select: none; -webkit-user-select: none; touch-action: none;
-  }
-  #microfono.grabando { background: #da363325; border-color: var(--rojo); color: #ff9d99; }
-  #microfono.ocupado  { background: var(--panel-2); border-color: var(--acento); color: var(--acento); }
+/* ------------------------------------------------------------ fondo animado */
+/* Cuatro capas, todas decorativas y detras de todo: degradado profundo, rejilla
+   de monitor, dos auras que derivan despacio y una traza de electrocardiograma
+   que recorre la pantalla. Se anima solo `transform` y `opacity`, que van por
+   GPU: durante una llamada la CPU esta ocupada analizando el audio cada 100 ms
+   y no puede competir con el fondo. */
+#fondo-clinico {
+  position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+  background:
+    radial-gradient(1200px 700px at 78% -10%, #0b2740 0%, transparent 62%),
+    radial-gradient(900px 600px at 12% 108%, #08243a 0%, transparent 60%),
+    linear-gradient(#04070e, #050b16 55%, #04070e);
+}
+#fondo-clinico .rejilla {
+  position: absolute; inset: -2px;
+  background-image:
+    linear-gradient(rgba(120, 190, 230, .05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120, 190, 230, .05) 1px, transparent 1px);
+  background-size: 46px 46px;
+  mask-image: radial-gradient(ellipse 120% 90% at 50% 40%, #000 35%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 120% 90% at 50% 40%, #000 35%, transparent 78%);
+}
+#fondo-clinico .aura {
+  position: absolute; border-radius: 50%; filter: blur(90px); opacity: .28;
+  will-change: transform;
+}
+#fondo-clinico .aura.a1 {
+  width: 620px; height: 620px; top: -180px; right: -120px;
+  background: radial-gradient(circle, #0e7490 0%, transparent 70%);
+  animation: deriva-1 34s ease-in-out infinite;
+}
+#fondo-clinico .aura.a2 {
+  width: 540px; height: 540px; bottom: -200px; left: -140px;
+  background: radial-gradient(circle, #155e75 0%, transparent 70%);
+  animation: deriva-2 44s ease-in-out infinite;
+}
+@keyframes deriva-1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(-70px, 60px, 0) scale(1.12); }
+}
+@keyframes deriva-2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(80px, -50px, 0) scale(1.08); }
+}
 
-  #nivel { font-size: 26px; font-weight: 700; letter-spacing: .04em; }
-  .dato { display: flex; justify-content: space-between; gap: 10px; padding: 5px 0;
-          border-bottom: 1px dashed var(--borde); font-size: 13.5px; }
-  .dato:last-child { border-bottom: none; }
-  .dato .k { color: var(--tenue); }
-  .bandera { font-size: 13px; padding: 5px 9px; border-radius: 6px; margin-bottom: 5px; }
-  .bandera.r { background: #da363320; border-left: 3px solid var(--rojo); }
-  .bandera.a { background: #d2992218; border-left: 3px solid var(--amarillo); }
-  .cita { font-size: 12.5px; padding: 6px 0; border-bottom: 1px dashed var(--borde); }
-  .barra-nivel { height: 4px; border-radius: 2px; margin-bottom: 12px; }
-  .pendiente { display: inline-block; padding: 2px 8px; border: 1px dashed var(--borde);
-               border-radius: 999px; font-size: 12px; color: var(--tenue); margin: 0 4px 4px 0; }
+/* La traza: dos copias identicas una detras de otra, desplazadas el 50% del
+   contenedor, para que el bucle no tenga costura visible. */
+#fondo-clinico .trazo {
+  position: absolute; left: 0; right: 0; bottom: 16%;
+  height: 190px; opacity: .16;
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+#fondo-clinico .trazo svg {
+  position: absolute; top: 0; left: 0; width: 200%; height: 100%;
+  animation: recorrer 26s linear infinite;
+  will-change: transform;
+}
+@keyframes recorrer { from { transform: translate3d(0, 0, 0); } to { transform: translate3d(-50%, 0, 0); } }
+
+/* Quien pide menos movimiento no lo recibe: el fondo se queda quieto y el
+   contenido no cambia de sitio. */
+@media (prefers-reduced-motion: reduce) {
+  #fondo-clinico .aura, #fondo-clinico .trazo svg { animation: none; }
+}
+
+/* ------------------------------------------------------------------ cabecera */
+header.barra {
+  padding: 9px 18px;
+  background: linear-gradient(180deg, rgba(10, 18, 32, .92), rgba(10, 18, 32, .72));
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--borde);
+}
+header.barra h1 { font-size: 14.5px; letter-spacing: .02em; display: flex; align-items: center; gap: 9px; }
+header.barra h1::before {
+  content: ""; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--acento); box-shadow: 0 0 0 3px rgba(34, 211, 238, .16);
+  animation: pulso-vital 2.4s ease-in-out infinite;
+}
+@keyframes pulso-vital {
+  0%, 100% { opacity: 1;  box-shadow: 0 0 0 3px rgba(34, 211, 238, .16); }
+  50%      { opacity: .5; box-shadow: 0 0 0 7px rgba(34, 211, 238, 0); }
+}
+header.barra nav a { font-size: 13px; letter-spacing: .03em; text-transform: uppercase; }
+header.barra nav a.activo { color: var(--acento); }
+
+/* -------------------------------------------------------------------- paneles */
+.panel {
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 10px 30px rgba(0, 0, 0, .35);
+}
+.panel h2 {
+  font-size: 10.5px; letter-spacing: .16em; margin: 0 0 9px;
+  color: var(--acento); opacity: .85;
+  display: flex; align-items: center; gap: 8px;
+}
+.panel h2::after { content: ""; flex: 1; height: 1px; background: linear-gradient(90deg, var(--borde), transparent); }
+
+/* --------------------------------------------------- barra de preparacion */
+/* Al iniciar la llamada se pliega a una sola linea: durante la conversacion
+   los selectores ya no sirven de nada y el espacio si. */
+#panel-inicio.plegado h2,
+#panel-inicio.plegado .fila { display: none; }
+#panel-inicio.plegado { padding: 8px 14px; margin-bottom: 10px; }
+#panel-inicio.plegado #ficha { margin-top: 0 !important; font-size: 12.5px; }
+
+/* ------------------------------------------------------------------ columnas */
+/* La altura se reparte, no se calcula a mano: `main` es una columna flexible y
+   esta rejilla se queda con lo que sobre despues de la barra de preparacion,
+   este plegada o no. Restar un numero fijo fallaba por 40 px con la barra
+   desplegada. No encoge (`flex-shrink: 0`) para que al aparecer el resumen sea
+   `main` quien desplace, y no las columnas quienes se aplasten. */
+.columnas {
+  display: grid; grid-template-columns: 1fr 372px; gap: 12px; align-items: stretch;
+  flex: 1 0 auto; min-height: 430px;
+}
+.columnas > div { display: flex; flex-direction: column; min-height: 0; }
+.columnas > div:last-child { overflow-y: auto; padding-right: 4px; }
+.columnas > div:first-child > .panel:first-child { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.columnas > div:last-child > .panel:last-child { margin-bottom: 0; }
+@media (max-width: 1100px) {
+  .columnas { grid-template-columns: 1fr; height: auto; }
+  body { overflow: auto; }
+}
+
+/* -------------------------------------------------------------- conversacion */
+#transcripcion { flex: 1; min-height: 0; height: auto; overflow-y: auto; padding-right: 8px; }
+#transcripcion::-webkit-scrollbar, .columnas > div:last-child::-webkit-scrollbar { width: 7px; }
+#transcripcion::-webkit-scrollbar-thumb, .columnas > div:last-child::-webkit-scrollbar-thumb {
+  background: rgba(94, 145, 190, .25); border-radius: 4px;
+}
+.burbuja {
+  max-width: 84%; padding: 8px 13px; border-radius: 13px; margin-bottom: 8px;
+  font-size: 14px; line-height: 1.5; animation: entrar .22s ease-out;
+}
+@keyframes entrar { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+.burbuja.agente {
+  background: linear-gradient(180deg, rgba(28, 44, 68, .85), rgba(20, 33, 52, .85));
+  border: 1px solid var(--borde); border-left: 2px solid var(--acento-2);
+  border-bottom-left-radius: 4px;
+}
+.burbuja.paciente {
+  background: linear-gradient(180deg, rgba(19, 62, 92, .85), rgba(15, 48, 74, .85));
+  border: 1px solid rgba(94, 145, 190, .3);
+  margin-left: auto; border-bottom-right-radius: 4px;
+}
+.burbuja .quien {
+  font-size: 9.5px; text-transform: uppercase; letter-spacing: .13em;
+  color: var(--tenue); margin-bottom: 2px;
+}
+
+/* --------------------------------------------------------------- microfono */
+#microfono {
+  width: 100%; padding: 15px; font-size: 15px; font-weight: 600; letter-spacing: .03em;
+  border-radius: 11px; border: 1px solid var(--borde);
+  background: linear-gradient(180deg, rgba(24, 36, 58, .9), rgba(16, 26, 44, .9));
+  user-select: none; -webkit-user-select: none; touch-action: none;
+  transition: border-color .18s, box-shadow .18s, color .18s;
+}
+#microfono.grabando {
+  background: linear-gradient(180deg, rgba(240, 65, 60, .16), rgba(240, 65, 60, .07));
+  border-color: var(--rojo); color: #ffb3b0;
+  animation: latido-mic 1.5s ease-in-out infinite;
+}
+@keyframes latido-mic {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(240, 65, 60, .32); }
+  50%      { box-shadow: 0 0 0 9px rgba(240, 65, 60, 0); }
+}
+#microfono.ocupado { border-color: var(--acento); color: var(--acento); box-shadow: 0 0 18px rgba(34, 211, 238, .14); }
+
+/* ------------------------------------------------------- decision del agente */
+#nivel {
+  font-size: 30px; font-weight: 800; letter-spacing: .12em; line-height: 1.1;
+  font-variant-numeric: tabular-nums;
+}
+#nivel.verde    { color: #34d399; text-shadow: 0 0 26px rgba(16, 185, 129, .45); }
+#nivel.amarillo { color: #fbbf24; text-shadow: 0 0 26px rgba(240, 180, 41, .45); }
+#nivel.rojo     { color: #ff6b66; text-shadow: 0 0 30px rgba(240, 65, 60, .55); animation: alerta 1.7s ease-in-out infinite; }
+@keyframes alerta { 0%, 100% { opacity: 1; } 50% { opacity: .74; } }
+/* El JS sustituye la clase del elemento por el nivel, asi que estas reglas no
+   pueden heredar del `.insignia` de base.css: se declaran completas aqui. */
+#nivel.verde, #nivel.amarillo, #nivel.rojo {
+  display: block; padding: 0; border: none; background: none; border-radius: 0;
+}
+.barra-nivel { height: 3px; border-radius: 2px; margin-bottom: 10px; transition: background .3s; }
+
+/* ------------------------------------------------------------------- datos */
+.dato {
+  display: flex; justify-content: space-between; gap: 10px; padding: 4px 0;
+  border-bottom: 1px solid rgba(94, 145, 190, .12); font-size: 13px;
+}
+.dato:last-child { border-bottom: none; }
+.dato .k { color: var(--tenue); }
+.bandera {
+  font-size: 12.5px; padding: 5px 9px; border-radius: 7px; margin-bottom: 5px;
+  display: flex; flex-direction: column; gap: 1px;
+}
+.bandera.r { background: rgba(240, 65, 60, .13); border-left: 2px solid var(--rojo); }
+.bandera.a { background: rgba(240, 180, 41, .11); border-left: 2px solid var(--amarillo); }
+.cita { font-size: 12px; padding: 5px 0; border-bottom: 1px solid rgba(94, 145, 190, .12); line-height: 1.45; }
+.cita:last-child { border-bottom: none; }
+.pendiente {
+  display: inline-block; padding: 1px 8px; border: 1px solid var(--borde);
+  border-radius: 999px; font-size: 11.5px; color: var(--tenue); margin: 0 4px 4px 0;
+}
+#pie-metricas { font-family: ui-monospace, "Cascadia Code", Consolas, monospace; font-size: 11.5px; }
+
+/* -------------------------------------------------------------- formularios */
+button, select, input[type=text] {
+  background: rgba(24, 36, 58, .85); border-color: var(--borde); border-radius: 9px;
+}
+button.primario {
+  background: linear-gradient(180deg, var(--acento), var(--acento-2));
+  border-color: var(--acento); color: #04141a; font-weight: 700; letter-spacing: .02em;
+  box-shadow: 0 0 22px rgba(34, 211, 238, .22);
+}
+button.primario:hover:not(:disabled) { box-shadow: 0 0 30px rgba(34, 211, 238, .34); }
+button.grande { padding: 13px 24px; font-size: 15px; }
+button.peligro { border-color: rgba(240, 65, 60, .5); color: #ff9d99; }
+label.campo { font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; }
+
+/* ---------------------------------------------------------------- resumen */
+#panel-resumen { max-height: 78vh; overflow-y: auto; }
 </style>
 </head>
 <body>
+<div id="fondo-clinico" aria-hidden="true">
+  <div class="rejilla"></div>
+  <div class="aura a1"></div>
+  <div class="aura a2"></div>
+  <div class="trazo">
+    <svg viewBox="0 0 2400 190" preserveAspectRatio="none" fill="none">
+      <!-- Un latido ocupa 300 unidades: linea de base, onda P, complejo QRS y
+           onda T. El patron se repite ocho veces (2400 = 300 x 8) y las cuatro
+           primeras son identicas a las cuatro ultimas, de modo que desplazar el
+           SVG media anchura reinicia el ciclo sin costura. -->
+      <path stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+        d="M0 95 H60 q18 0 26 -13 t26 13 H190 l14 0 l10 -56 l12 104 l11 -50 l9 2 H300
+           M300 95 H360 q18 0 26 -13 t26 13 H490 l14 0 l10 -56 l12 104 l11 -50 l9 2 H600
+           M600 95 H660 q18 0 26 -13 t26 13 H790 l14 0 l10 -56 l12 104 l11 -50 l9 2 H900
+           M900 95 H960 q18 0 26 -13 t26 13 H1090 l14 0 l10 -56 l12 104 l11 -50 l9 2 H1200
+           M1200 95 H1260 q18 0 26 -13 t26 13 H1390 l14 0 l10 -56 l12 104 l11 -50 l9 2 H1500
+           M1500 95 H1560 q18 0 26 -13 t26 13 H1690 l14 0 l10 -56 l12 104 l11 -50 l9 2 H1800
+           M1800 95 H1860 q18 0 26 -13 t26 13 H1990 l14 0 l10 -56 l12 104 l11 -50 l9 2 H2100
+           M2100 95 H2160 q18 0 26 -13 t26 13 H2290 l14 0 l10 -56 l12 104 l11 -50 l9 2 H2400"/>
+    </svg>
+  </div>
+</div>
 <header class="barra">
   <h1>Llamada de seguimiento postoperatorio</h1>
   <nav>
@@ -193,9 +452,14 @@ function pintarFicha() {
   const p = pacienteActual();
   if (!p) return;
   document.getElementById('dia').value = p.dia_postop_sugerido;
+  // El nombre y el procedimiento van dentro de la ficha porque, con la barra de
+  // preparacion plegada durante la llamada, esta linea es lo unico que queda
+  // en pantalla identificando a quien se esta llamando.
   document.getElementById('ficha').innerHTML = `
-    ${p.edad} anos · ${escapar(p.genero)} · ${escapar(p.ciudad)}, ${escapar(p.departamento)} ·
-    EPS ${escapar(p.eps)} · cirugia el ${escapar(p.fecha_cirugia)} ·
+    <b style="color:var(--texto)">${escapar(p.nombre_completo)}</b> ·
+    ${escapar(p.procedimiento)} · ${p.edad} anos · ${escapar(p.genero)} ·
+    ${escapar(p.ciudad)}, ${escapar(p.departamento)} · EPS ${escapar(p.eps)} ·
+    cirugia el ${escapar(p.fecha_cirugia)} ·
     escenario del corpus <span class="mono">${escapar(p.escenario)}</span><br>
     Comorbilidades: ${p.comorbilidades.length ? escapar(p.comorbilidades.join(', ')) : 'ninguna registrada'}`;
 }
@@ -281,6 +545,9 @@ async function iniciarLlamada() {
     document.getElementById('transcripcion').innerHTML = '';
     document.getElementById('paciente').disabled = true;
     document.getElementById('dia').disabled = true;
+    // Durante la conversacion los selectores ya no sirven: la barra se pliega a
+    // una linea y ese espacio se lo queda la transcripcion.
+    document.getElementById('panel-inicio').classList.add('plegado');
 
     burbuja('agente', d.saludo);
     await prepararMicrofono();
@@ -631,6 +898,7 @@ async function finalizar() {
   document.getElementById('btn-iniciar').disabled = false;
   document.getElementById('paciente').disabled = false;
   document.getElementById('dia').disabled = false;
+  document.getElementById('panel-inicio').classList.remove('plegado');
   document.getElementById('microfono').textContent = 'Llamada finalizada';
 }
 
