@@ -10,7 +10,7 @@ personal capacitado.
 | **01** Repositorio | este repositorio |
 | **02** Diagrama de arquitectura y flujo de decisión | [`docs/arquitectura.md`](docs/arquitectura.md) |
 | **03** Informe final | [`docs/informe-final.md`](docs/informe-final.md) |
-| **04** Video | _pendiente_ |
+| **04** Video demo | _pendiente: se publicará en YouTube como **no listado** y el enlace irá aquí_ |
 
 El enunciado original del reto está en [`docs/reto.md`](docs/reto.md); la rúbrica, en
 [`docs/rubrica-evaluacion.md`](docs/rubrica-evaluacion.md).
@@ -126,7 +126,9 @@ El flujo completo de decisión está en [`docs/arquitectura.md`](docs/arquitectu
 
 ---
 
-## 3. Modelo de lenguaje: cuál y por qué
+## 3. Modelos y herramientas de voz: cuáles y por qué
+
+### Modelos de lenguaje
 
 **Familia Meta Llama, servida por Groq.** Se verifica en arranque y se expone en
 `/api/salud` ([`config.modelo_permitido`](app/config.py)).
@@ -135,7 +137,21 @@ El flujo completo de decisión está en [`docs/arquitectura.md`](docs/arquitectu
 |---|---|---|
 | Diálogo con el paciente | `llama-3.3-70b-versatile` | Es el que redacta lo que el paciente oye: registro, empatía y adherencia a límites clínicos. La calidad manda sobre el costo porque son ~160 tokens por turno. |
 | Extracción estructurada y juicio | `llama-3.1-8b-instant` | Corre en el camino crítico de la latencia y devuelve JSON, no prosa. Un modelo de 8B resuelve la tarea con un tiempo hasta el primer token muy inferior. |
-| Transcripción | `whisper-large-v3-turbo` | Misma cuenta y misma región que el resto: evita un segundo proveedor en el camino crítico. |
+
+### Herramientas de voz
+
+| Función | Herramienta | Dónde corre | Por qué esa |
+|---|---|---|---|
+| **Voz a texto** (STT) | **Whisper Large V3 Turbo** (`whisper-large-v3-turbo`), vía API de Groq | Nube | Misma cuenta y misma región que los modelos de lenguaje: evita un segundo proveedor en el camino crítico. Mide 957 ms de mediana sobre audio real. |
+| **Texto a voz** (TTS) | **Web Speech API del navegador** (`speechSynthesis`), voz `es-CO` con respaldo a cualquier voz en español | Local, en el navegador | Cero credenciales adicionales y cero latencia de red. La respuesta se emite **frase a frase**, así que el navegador empieza a hablar con la primera mientras el modelo aún genera el resto. |
+| **Captura de micrófono** | **MediaRecorder + getUserMedia**, con detección de silencio propia sobre `AudioContext` | Local, en el navegador | El turno se corta solo tras 1,2 s de silencio, sin que el paciente tenga que pulsar nada. Ver [`llamada.html`](app/web/llamada.html), función `armarAuto`. |
+
+**La elección de TTS es una decisión de compuerta, no de calidad.** Una voz neuronal
+sonaría mejor, pero añade un proveedor más al camino crítico y descargas al levantamiento,
+que la rúbrica cronometra en 15 minutos. Queda declarada como límite conocido en §8.
+
+**Sin dependencias de terceros en el navegador:** las tres superficies son HTML, CSS y
+JavaScript planos. No hay CDN, ni framework, ni paso de compilación.
 
 **Por qué Groq y no otro proveedor de la misma familia:** en voz, lo que el paciente
 percibe como silencio incómodo es el tiempo hasta el primer token. Groq sirve Llama sobre
@@ -622,6 +638,11 @@ Se declaran porque la rúbrica premia saber qué quedó fuera:
 
 ## 9. Licencia
 
-Código bajo licencia MIT (ver [`LICENSE`](LICENSE)). Los datos de `dataset/` son
-sintéticos y provienen del repositorio base del reto; los PDFs de `dataset/textos/` son
-obra de sus respectivos autores. Nada de esto tiene validez clínica.
+Código bajo **licencia MIT**, con el texto oficial completo en [`LICENSE`](LICENSE). El
+archivo declara dos titulares: **Henry Taborda**, por la implementación de este
+repositorio, y **Source Meridian**, por el material del repositorio base del reto —el
+`dataset/`, el enunciado y la rúbrica— que se redistribuye aquí bajo la misma licencia.
+
+Los datos de `dataset/` son sintéticos. Los PDFs de `dataset/textos/` son obra de sus
+respectivos autores y editores, conservan sus propios derechos y se incluyen únicamente
+como material de referencia. Nada de esto tiene validez clínica.
