@@ -60,6 +60,9 @@ class Llamada:
     estado: EstadoSintomas = field(default_factory=EstadoSintomas)
     historial: list[dict] = field(default_factory=list)
     triaje: ResultadoTriaje | None = None
+    # Campos que cambiaron en el turno que se esta procesando. Sirven para que
+    # el prompt distinga lo que el paciente acaba de decir de lo que ya se sabia.
+    cambios_turno: list[str] = field(default_factory=list)
     # El nivel mas alto que llego a alcanzar la llamada. No gobierna lo que se
     # publica en el turno -eso lo explica `_fijar_triaje`-; queda para que el
     # resumen del cierre pueda decir por donde paso la conversacion.
@@ -119,6 +122,7 @@ class Llamada:
                     turnos_paciente=sum(
                         1 for t in self.historial if t.get("hablante") == "paciente"
                     ),
+                    cambios=self.cambios_turno,
                 ),
             ]
         )
@@ -252,6 +256,7 @@ class Llamada:
         crono.fijar("extraccion_y_recuperacion", (time.perf_counter() - inicio_par) * 1000)
 
         cambios = self.estado.fusionar(delta)
+        self.cambios_turno = cambios
 
         # --- triaje --------------------------------------------------------
         # Se decide sobre el peor valor que se llego a oir en la llamada, no

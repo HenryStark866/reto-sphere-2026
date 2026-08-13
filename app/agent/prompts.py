@@ -30,6 +30,22 @@ formato escrito: todo lo que digas se va a leer en voz alta tal cual.
 reformula con sus propias palabras para confirmar que entendiste.
 - Si tienes que dar una instruccion larga, partela: da un paso, confirma que \
 el paciente lo recibio, y sigue con el siguiente.
+- El trato de usted no se rompe nunca, ni cuando el paciente te tutee a ti. \
+Nada de "tienes razon" ni "como te decia": es "tiene razon", "como le decia".
+
+LA FICHA INTERNA NO SE LE LEE AL PACIENTE
+Recibes una ficha con lo recogido hasta ahora. Es tuya, para saber que falta \
+por preguntar. Nunca se la recites ni le digas que algo "ya lo teniamos \
+anotado", "ya lo habiamos registrado" o "consta en su valoracion previa". Esa \
+frase suena a que no lo estas escuchando, y ademas suele ser falsa: casi \
+siempre se refiere a lo que el paciente te acaba de decir hace un segundo. \
+Tampoco existe ninguna valoracion anterior a esta llamada: no la menciones ni \
+la des por hecha.
+Si el paciente repite algo que ya te habia contado, simplemente lo reconoces \
+con naturalidad -"claro", "entiendo"- y sigues; no le senalas que se repitio.
+- Y no discutas con el paciente sobre lo que dice sentir. Si da una cifra que \
+no cuadra -una temperatura imposible, un numero fuera de escala-, no lo \
+corriges ni lo contradices: le pides que lo confirme y sigues.
 
 QUE AVERIGUAS
 Cubres seis temas, adaptando el orden a lo que el paciente cuente: dolor (de \
@@ -142,14 +158,41 @@ def bloque_contexto(pasajes: list[dict], hay_evidencia: bool) -> str:
 TURNOS_ANTES_DE_RENDIRSE = 9
 
 
+ETIQUETA_DOMINIO = {
+    "dolor_nrs": "el dolor", "fiebre_c": "la temperatura",
+    "fiebre_subjetiva": "la sensacion de fiebre", "herida": "la herida",
+    "movilidad": "la movilidad", "apetito": "el apetito", "sueno": "el sueno",
+}
+
+
 def bloque_estado(
-    estado: EstadoSintomas, triaje_motivo: str, nivel: str, turnos_paciente: int = 0
+    estado: EstadoSintomas,
+    triaje_motivo: str,
+    nivel: str,
+    turnos_paciente: int = 0,
+    cambios: list[str] | None = None,
 ) -> str:
     pendientes = estado.dominios_pendientes()
     insistir = turnos_paciente < TURNOS_ANTES_DE_RENDIRSE
     lineas = [
-        "ESTADO DE LA VALORACION",
+        "ESTADO DE LA VALORACION (ficha interna: el paciente no la ve y tu no se la lees)",
         f"Recogido hasta ahora: {estado.resumen_legible()}",
+    ]
+
+    # Sin esta distincion el modelo leia la ficha entera como conocimiento
+    # antiguo y le devolvia al paciente "ya habiamos anotado que...", justo
+    # sobre lo que el paciente acababa de decir. Llego a inventarse una
+    # "valoracion previa" que nunca existio.
+    if cambios:
+        recien = sorted({ETIQUETA_DOMINIO[c] for c in cambios if c in ETIQUETA_DOMINIO})
+        if recien:
+            lineas.append(
+                f"DE ESO, LO QUE ACABA DE DECIR EN ESTE TURNO: {', '.join(recien)}. "
+                "Es informacion nueva, recien salida de su boca: reaccionas a ella como "
+                "algo que te acaba de contar, nunca como algo que ya tuvieras anotado."
+            )
+
+    lineas += [
         f"Temas que faltan por preguntar: {', '.join(pendientes) if pendientes else 'ninguno'}",
         f"Nivel de criticidad actual: {nivel.upper()}",
         f"Motivo: {triaje_motivo}",
