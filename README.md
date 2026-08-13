@@ -10,7 +10,7 @@ personal capacitado.
 | **01** Repositorio | este repositorio |
 | **02** Diagrama de arquitectura y flujo de decisión | [`docs/arquitectura.md`](docs/arquitectura.md) |
 | **03** Informe final | [`docs/informe-final.md`](docs/informe-final.md) |
-| **04** Video demo | _pendiente: se publicará en YouTube como **no listado** y el enlace irá aquí_ |
+| **04** Video demo | **[Ver el demo y la sustentación](https://youtu.be/0qGT4mcllek)** (YouTube, no listado) |
 
 El enunciado original del reto está en [`docs/reto.md`](docs/reto.md); la rúbrica, en
 [`docs/rubrica-evaluacion.md`](docs/rubrica-evaluacion.md).

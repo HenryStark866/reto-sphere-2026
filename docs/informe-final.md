@@ -539,8 +539,13 @@ vivo —índice 321 → 322 al subir un documento con un término inventado que 
 lugar con similitud 0,7792, y 322 → 323 al eliminarlo, volviendo exacto a 107 documentos y
 6 239 fragmentos sin residuo—.
 
-Las capturas de pantalla propiamente dichas se toman durante la grabación del video
-(entregable 04), que es donde el jurado ve las dos superficies en movimiento:
+**El video está en <https://youtu.be/0qGT4mcllek>** (YouTube, no listado). Recorre el
+arranque completo del sistema, la compuerta del modelo en `/api/salud`, el ciclo de
+conocimiento vivo, una llamada de voz real que escala a rojo, el resumen estructurado del
+cierre y las métricas acumuladas; y cierra con las dos preguntas de sustentación frente a
+cámara.
+
+Lo que se ve en él, en orden:
 
 1. `/api/salud` con modelo permitido e índice cargado — compuerta G3
 2. Consola: documento subido y marcado "procesado y disponible", versión del índice al alza — G5 alta
