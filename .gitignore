@@ -34,3 +34,6 @@ logs/*
 
 # El indice construido SI se versiona a proposito (index/): reprocesar 107 PDFs
 # no cabe en los 15 minutos que mide la compuerta de levantamiento.
+
+# Utilidad local para grabar el video de entrega; no forma parte de la solucion.
+grabar.ps1

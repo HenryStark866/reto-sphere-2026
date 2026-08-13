@@ -55,6 +55,13 @@ Abre `.env` y pega la llave en `GROQ_API_KEY=`.
 uvicorn app.server:app --port 8000
 ```
 
+> **En Windows hay un atajo:** doble clic en [`INICIAR.bat`](INICIAR.bat). Hace lo mismo
+> que el comando de arriba y además libera el puerto si quedó un arranque anterior vivo,
+> espera a que el servidor responda, comprueba que los tres modelos son de familia
+> permitida y que el índice tiene sus 107 documentos, avisa si la cuota del proveedor está
+> agotada, y abre el navegador. No sustituye al comando —la ruta oficial es la de arriba y
+> funciona igual en macOS y Linux—, pero ahorra el ida y vuelta cuando algo no arranca.
+
 El primer arranque descarga el modelo de embeddings (~90 MB, una sola vez) en segundo
 plano; el servidor responde de inmediato mientras tanto.
 
