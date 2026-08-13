@@ -539,7 +539,7 @@ vivo —índice 321 → 322 al subir un documento con un término inventado que 
 lugar con similitud 0,7792, y 322 → 323 al eliminarlo, volviendo exacto a 107 documentos y
 6 239 fragmentos sin residuo—.
 
-**El video está en <https://youtu.be/0qGT4mcllek>** (YouTube, no listado). Recorre el
+**El video está en <https://youtu.be/GWscBvkoChg>** (YouTube, no listado). Recorre el
 arranque completo del sistema, la compuerta del modelo en `/api/salud`, el ciclo de
 conocimiento vivo, una llamada de voz real que escala a rojo, el resumen estructurado del
 cierre y las métricas acumuladas; y cierra con las dos preguntas de sustentación frente a

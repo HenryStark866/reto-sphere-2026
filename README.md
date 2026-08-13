@@ -10,7 +10,7 @@ personal capacitado.
 | **01** Repositorio | este repositorio |
 | **02** Diagrama de arquitectura y flujo de decisión | [`docs/arquitectura.md`](docs/arquitectura.md) |
 | **03** Informe final | [`docs/informe-final.md`](docs/informe-final.md) |
-| **04** Video demo | **[Ver el demo y la sustentación](https://youtu.be/0qGT4mcllek)** (YouTube, no listado) |
+| **04** Video demo | **[Ver el demo y la sustentación](https://youtu.be/GWscBvkoChg)** (YouTube, no listado) |
 
 El enunciado original del reto está en [`docs/reto.md`](docs/reto.md); la rúbrica, en
 [`docs/rubrica-evaluacion.md`](docs/rubrica-evaluacion.md).
@@ -767,10 +767,13 @@ Se declaran porque la rúbrica premia saber qué quedó fuera:
 
 ## 9. Licencia
 
-Código bajo **licencia MIT**, con el texto oficial completo en [`LICENSE`](LICENSE). El
-archivo declara dos titulares: **Henry Taborda**, por la implementación de este
-repositorio, y **Source Meridian**, por el material del repositorio base del reto —el
-`dataset/`, el enunciado y la rúbrica— que se redistribuye aquí bajo la misma licencia.
+Código bajo **licencia MIT**, con el texto oficial completo en [`LICENSE`](LICENSE), a
+nombre de **Henry Taborda**, autor de esta implementación.
+
+El `dataset/`, el enunciado ([`docs/reto.md`](docs/reto.md)) y la rúbrica
+([`docs/rubrica-evaluacion.md`](docs/rubrica-evaluacion.md)) provienen del repositorio base
+del reto, publicado por **Source Meridian** también bajo licencia MIT, y se redistribuyen
+aquí en esos mismos términos.
 
 Los datos de `dataset/` son sintéticos. Los PDFs de `dataset/textos/` son obra de sus
 respectivos autores y editores, conservan sus propios derechos y se incluyen únicamente
