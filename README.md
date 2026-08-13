@@ -241,25 +241,25 @@ Cualquier número medido solo en el servidor sería optimista.
 **Todo lo de esta sección es la salida literal de `GET /api/metricas`.** Se puede abrir en
 el navegador y contrastar cifra a cifra; si algo no cuadra, manda el endpoint, no el README.
 
-El P50 y el P95 salen **solo de los 26 turnos con medición cerrada en el cliente**, todos
+El P50 y el P95 salen **solo de los 35 turnos con medición cerrada en el cliente**, todos
 de llamadas de voz reales. Los turnos escritos del campo de respaldo no entran ahí.
 
 | Métrica | Valor |
 |---|---|
-| P50 extremo a extremo | **5 350 ms** |
-| P95 extremo a extremo | **7 840 ms** |
+| P50 extremo a extremo | **4 858 ms** |
+| P95 extremo a extremo | **7 782 ms** |
 
 Desglose por etapa (mediana):
 
 | Etapa | P50 |
 |---|---:|
 | Transcripción (Whisper) | 2 358 ms |
-| Extracción + recuperación, en paralelo | 792 ms |
+| Extracción + recuperación, en paralelo | 762 ms |
 | Triaje determinista | 0,0 ms |
-| Hasta el primer token del diálogo (TTFT) | 618 ms |
-| Generación completa del diálogo | 803 ms |
-| Total de servidor | 4 507 ms |
-| Total extremo a extremo medido en el cliente | 5 350 ms |
+| Hasta el primer token del diálogo (TTFT) | 605 ms |
+| Generación completa del diálogo | 743 ms |
+| Total de servidor | 4 365 ms |
+| Total extremo a extremo medido en el cliente | 4 858 ms |
 
 **La transcripción domina el turno, y por eso el P50 varía tanto entre sesiones.** El
 desglose por llamada lo deja claro:
@@ -287,15 +287,15 @@ un error: son comparaciones contra umbrales sobre una estructura ya en memoria.
 
 ### Consumo
 
-Muestra: **50 turnos en 7 llamadas**; de ellos **42 turnos** traen el reparto de tokens por
+Muestra: **75 turnos en 11 llamadas**; de ellos **67 turnos** traen el reparto de tokens por
 modelo, que son los que sostienen el costo.
 
 | Métrica | Valor |
 |---|---|
-| Tokens de entrada / salida por turno | 3 972 / 233 |
-| Tokens de entrada / salida por llamada | 28 374 / 1 665 |
-| Invocaciones al modelo por turno | 2,40 |
-| Consultas al RAG por llamada | 5,14 (sobre 7,1 turnos de media) |
+| Tokens de entrada / salida por turno | 3 838 / 230 |
+| Tokens de entrada / salida por llamada | 26 167 / 1 566 |
+| Invocaciones al modelo por turno | 2,31 |
+| Consultas al RAG por llamada | 5,0 (sobre 6,8 turnos de media) |
 
 Las invocaciones por turno no son un número entero porque la segunda opinión solo corre
 cuando la extracción cambió algo del estado, y ni siquiera entonces si no hay ninguna
@@ -309,7 +309,7 @@ no cuando dice "sí" o "ahí vamos"
 | Métrica | Valor |
 |---|---|
 | Costo por turno | US$ 0,00182 |
-| **Costo estimado por llamada** | **US$ 0,0130** |
+| **Costo estimado por llamada** | **US$ 0,0111** |
 | Transcripción, aparte | US$ 0,00007 por turno de ~6 s de audio |
 
 **Cómo se calcula.** El nivel gratuito de Groq no cobra, así que se extrapola a precios

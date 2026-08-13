@@ -405,17 +405,17 @@ porque una muestra corta declarada vale más que un percentil sin denominador.
 | Corpus indexado | 107 documentos · 6 239 fragmentos · 384 dimensiones |
 | Tiempo de construcción del índice | 5,8 minutos — 345,4 s medidos, evidencia en `logs/construccion_indice.log` |
 
-### 7.2 Latencia — P50 y P95 sobre 26 turnos de voz con medición en cliente
+### 7.2 Latencia — P50 y P95 sobre 35 turnos de voz con medición en cliente
 
 | Métrica | Valor |
 |---|---|
-| P50 extremo a extremo | 5 350 ms |
-| P95 extremo a extremo | 7 840 ms |
+| P50 extremo a extremo | 4 858 ms |
+| P95 extremo a extremo | 7 782 ms |
 | Transcripción (P50) | 2 358 ms |
-| Extracción + recuperación en paralelo (P50) | 792 ms |
+| Extracción + recuperación en paralelo (P50) | 762 ms |
 | Triaje determinista (P50) | 0,0 ms |
-| Hasta el primer token del diálogo (P50) | 618 ms |
-| Total de servidor (P50) | 4 507 ms |
+| Hasta el primer token del diálogo (P50) | 605 ms |
+| Total de servidor (P50) | 4 365 ms |
 
 La medición la cierra el navegador cuando arranca la síntesis de voz, no el servidor. Solo
 los turnos de voz tienen esa medición: los del campo de texto de respaldo quedan fuera del
@@ -431,16 +431,16 @@ más largo. Se reporta el agregado —lo que devuelve el endpoint— y no la mej
 La vía para reducirlo es trocear el audio y transcribir mientras el paciente habla en vez
 de esperar a que termine; queda en §10.
 
-### 7.3 Consumo y costo — 50 turnos en 7 llamadas, 42 de ellos tarifados
+### 7.3 Consumo y costo — 75 turnos en 11 llamadas, 67 de ellos tarifados
 
 | Métrica | Valor |
 |---|---|
-| Tokens de entrada / salida por turno | 3 972 / 233 |
-| Tokens de entrada / salida por llamada | 28 374 / 1 665 |
-| Invocaciones al modelo por turno | 2,40 |
-| Consultas al RAG por llamada | 5,14 |
+| Tokens de entrada / salida por turno | 3 838 / 230 |
+| Tokens de entrada / salida por llamada | 26 167 / 1 566 |
+| Invocaciones al modelo por turno | 2,31 |
+| Consultas al RAG por llamada | 5,0 |
 | Costo por turno | US$ 0,00182 |
-| **Costo estimado por llamada** | **US$ 0,0130** |
+| **Costo estimado por llamada** | **US$ 0,0111** |
 
 Cada modelo se tarifa al suyo — ver §6.7. Todo esto es la salida literal de
 `GET /api/metricas`, que agrega `logs/turnos.jsonl` en vivo.
