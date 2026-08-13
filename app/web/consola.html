@@ -42,6 +42,53 @@
     background: linear-gradient(90deg, var(--acento-2), var(--acento));
     box-shadow: 0 0 10px rgba(34, 211, 238, .5);
   }
+
+  /* ---------------------------------------------------- metricas y detalle */
+  .rejilla-metricas {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px;
+  }
+  .metrica {
+    background: rgba(24, 36, 58, .55); border: 1px solid var(--borde);
+    border-radius: 9px; padding: 10px 12px; position: relative; overflow: hidden;
+  }
+  .metrica::before {
+    content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 2px;
+    background: linear-gradient(180deg, var(--acento), transparent);
+  }
+  .metrica .clave {
+    font-size: 9.5px; color: var(--tenue); text-transform: uppercase;
+    letter-spacing: .12em; margin-bottom: 3px; line-height: 1.3;
+  }
+  .metrica .valor { font-size: 19px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .metrica .unidad { font-size: 11px; color: var(--tenue); font-weight: 400; margin-left: 2px; }
+  .metrica .nota { font-size: 10.5px; color: var(--tenue); margin-top: 2px; }
+
+  /* Las etapas de latencia se leen mejor comparadas entre si que en una lista
+     de cifras: la barra hace evidente cual domina el turno. */
+  .etapa { display: grid; grid-template-columns: 190px 1fr 62px; gap: 10px; align-items: center;
+           font-size: 12.5px; padding: 3px 0; }
+  .etapa .riel { height: 6px; background: rgba(94,145,190,.14); border-radius: 3px; overflow: hidden; }
+  .etapa .relleno { height: 100%; border-radius: 3px;
+                    background: linear-gradient(90deg, var(--acento-2), var(--acento)); }
+  .etapa .cifra { text-align: right; font-variant-numeric: tabular-nums; color: var(--tenue); }
+
+  .seccion { margin-top: 16px; }
+  .seccion > h3 {
+    font-size: 10px; text-transform: uppercase; letter-spacing: .14em;
+    color: var(--acento); opacity: .8; margin: 0 0 8px; font-weight: 600;
+  }
+  .ficha-paciente { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; }
+  .ficha-paciente .par .k {
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--tenue);
+    display: block;
+  }
+  .lista-limpia { margin: 0; padding-left: 18px; font-size: 13px; line-height: 1.6; }
+  .turno-det { padding: 6px 0; border-bottom: 1px solid rgba(94,145,190,.1); font-size: 13px; }
+  .turno-det:last-child { border-bottom: none; }
+  .turno-det .quien {
+    font-size: 9.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--tenue);
+  }
+  .turno-det.agente .quien { color: var(--acento-2); }
 </style>
 </head>
 <body>
@@ -151,7 +198,11 @@
 
   <div class="panel" id="panel-detalle" style="display:none">
     <h2>Detalle de la llamada <span id="detalle-id" class="mono"></span></h2>
-    <pre class="json" id="detalle"></pre>
+    <div id="detalle"></div>
+    <details style="margin-top:14px">
+      <summary class="tenue" style="cursor:pointer; font-size:12.5px">Ver el registro completo en JSON</summary>
+      <pre class="json" id="detalle-json" style="margin-top:10px"></pre>
+    </details>
   </div>
 
   <div class="panel">
@@ -159,7 +210,11 @@
     <p class="tenue" style="margin-top:-6px; font-size:13.5px">
       Agregadas desde <span class="mono">logs/turnos.jsonl</span>. Son las que se reportan en el README.
     </p>
-    <pre class="json" id="metricas">Cargando...</pre>
+    <div id="metricas"><span class="vacio">Cargando...</span></div>
+    <details style="margin-top:14px">
+      <summary class="tenue" style="cursor:pointer; font-size:12.5px">Ver la respuesta de /api/metricas en JSON</summary>
+      <pre class="json" id="metricas-json" style="margin-top:10px"></pre>
+    </details>
   </div>
 </main>
 
@@ -359,14 +414,152 @@ async function cargarActividad() {
       </tr>`).join('')
     : '<tr><td colspan="5" class="vacio">Ninguna llamada registrada.</td></tr>';
 
-  document.getElementById('metricas').textContent = JSON.stringify(m, null, 2);
+  pintarMetricas(m);
 }
 
+// ----------------------------------------------------------------- metricas
+function tarjeta(clave, valor, unidad, nota) {
+  return `<div class="metrica">
+    <div class="clave">${escapar(clave)}</div>
+    <div class="valor">${escapar(valor)}${unidad ? `<span class="unidad">${escapar(unidad)}</span>` : ''}</div>
+    ${nota ? `<div class="nota">${escapar(nota)}</div>` : ''}
+  </div>`;
+}
+
+const NOMBRE_ETAPA = {
+  stt: 'Transcripcion (Whisper)',
+  extraccion_y_recuperacion: 'Extraccion + RAG',
+  triaje: 'Triaje determinista',
+  llm_ttft: 'Hasta el primer token',
+  llm_total: 'Respuesta completa',
+  servidor_total: 'Total de servidor',
+  e2e_cliente: 'Total en el cliente',
+};
+
+function pintarMetricas(m) {
+  const caja = document.getElementById('metricas');
+  document.getElementById('metricas-json').textContent = JSON.stringify(m, null, 2);
+
+  if (!m || !m.turnos) {
+    caja.innerHTML = '<span class="vacio">Todavia no hay turnos registrados.</span>';
+    return;
+  }
+
+  const lat = m.latencia_ms || {};
+  const t = m.por_turno || {};
+  const ll = m.por_llamada || {};
+
+  // La latencia se declara con su denominador al lado: un percentil sobre siete
+  // turnos y otro sobre setenta no valen lo mismo, y la rubrica contrasta estas
+  // cifras contra los logs.
+  const nLat = lat.medida_en_cliente || 0;
+  const bloques = [
+    tarjeta('Latencia P50', (lat.p50 ?? 0).toLocaleString('es-CO'), ' ms',
+            nLat ? `${nLat} turnos de voz` : 'sin medicion de cliente'),
+    tarjeta('Latencia P95', (lat.p95 ?? 0).toLocaleString('es-CO'), ' ms', 'extremo a extremo'),
+    tarjeta('Costo por llamada', 'US$ ' + (ll.costo_usd ?? 0).toFixed(4), '',
+            `${ll.turnos_con_costo ?? 0} turnos tarifados`),
+    tarjeta('Tokens por turno', `${Math.round(t.tokens_entrada ?? 0)} / ${Math.round(t.tokens_salida ?? 0)}`,
+            '', 'entrada / salida'),
+    tarjeta('Invocaciones por turno', (t.invocaciones_modelo ?? 0).toFixed(2), '',
+            'la 2.a opinion no siempre corre'),
+    tarjeta('Consultas al RAG', (ll.consultas_rag ?? 0).toFixed(1), '', 'por llamada'),
+    tarjeta('Turnos registrados', m.turnos, '', `${m.llamadas} llamada(s)`),
+    tarjeta('Turnos por llamada', (ll.turnos ?? 0).toFixed(1), '', 'promedio'),
+  ].join('');
+
+  const etapas = m.latencia_por_etapa_p50_ms || {};
+  // El total de servidor es la referencia de la barra, no el maximo de la serie:
+  // asi cada etapa se lee como la fraccion del turno que ocupa.
+  const ref = etapas.servidor_total || Math.max(1, ...Object.values(etapas));
+  const filas = Object.entries(etapas).map(([k, v]) => `
+    <div class="etapa">
+      <span>${escapar(NOMBRE_ETAPA[k] || k)}</span>
+      <span class="riel"><span class="relleno" style="width:${Math.min(100, (v / ref) * 100).toFixed(1)}%"></span></span>
+      <span class="cifra">${Math.round(v)} ms</span>
+    </div>`).join('');
+
+  caja.innerHTML = `<div class="rejilla-metricas">${bloques}</div>
+    ${filas ? `<div class="seccion"><h3>Mediana por etapa del turno</h3>${filas}</div>` : ''}`;
+}
+
+// ------------------------------------------------------------------ detalle
 async function verDetalle(id) {
   const d = await fetch('/api/llamadas/' + id).then(r => r.json());
   document.getElementById('panel-detalle').style.display = '';
   document.getElementById('detalle-id').textContent = id;
-  document.getElementById('detalle').textContent = JSON.stringify(d, null, 2);
+  document.getElementById('detalle-json').textContent = JSON.stringify(d, null, 2);
+
+  const res = d.resumen || {};
+  const pac = res.paciente || {};
+  const dec = res.decision || {};
+  const nar = res.narrativa || {};
+  const banderas = [...(dec.banderas_rojas || []).map(b => ({ ...b, c: 'rojo' })),
+                    ...(dec.banderas_amarillas || []).map(b => ({ ...b, c: 'amarillo' }))];
+
+  const par = (k, v) => v || v === 0
+    ? `<div class="par"><span class="k">${escapar(k)}</span>${escapar(v)}</div>` : '';
+  const seccion = (titulo, html) => html
+    ? `<div class="seccion"><h3>${escapar(titulo)}</h3>${html}</div>` : '';
+  const lista = (vals) => vals && vals.length
+    ? `<ul class="lista-limpia">${vals.map(v => `<li>${escapar(v)}</li>`).join('')}</ul>` : '';
+
+  const nivel = d.nivel_final || dec.nivel || 'neutro';
+  const duracion = d.fin_ts && d.inicio_ts ? Math.round(d.fin_ts - d.inicio_ts) : (res.duracion_s || 0);
+
+  document.getElementById('detalle').innerHTML = `
+    <div class="fila" style="margin-bottom:12px">
+      <span class="insignia ${escapar(nivel)}">${escapar(String(nivel).toUpperCase())}</span>
+      ${dec.escalar_a_humano
+        ? '<span class="insignia rojo">escala a personal de salud</span>'
+        : '<span class="insignia neutro">no requiere escalamiento</span>'}
+      <span class="tenue" style="font-size:12.5px">
+        ${d.turnos ? d.turnos.length : 0} turnos · ${Math.round(duracion)} s ·
+        ${(res.referencias || []).length} referencias · ${fecha(d.inicio_ts)}
+      </span>
+    </div>
+
+    <div class="ficha-paciente">
+      ${par('Paciente', pac.nombre || d.nombre)}
+      ${par('Procedimiento', pac.procedimiento || d.procedimiento)}
+      ${par('Dia postop.', pac.dia_postop ?? d.dia_postop)}
+      ${par('Edad', pac.edad)}
+      ${par('Documento', pac.documento)}
+      ${par('EPS', pac.eps)}
+      ${par('Comorbilidades', (pac.comorbilidades || []).join(', ') || 'ninguna')}
+    </div>
+
+    ${seccion('Decision y por que', `
+      <div style="font-size:13px">${escapar(dec.motivo || '-')}</div>
+      ${dec.origen ? `<div class="tenue mono" style="font-size:11.5px; margin-top:4px">origen: ${escapar(dec.origen)}</div>` : ''}
+      ${banderas.length ? `<div style="margin-top:8px">${banderas.map(b =>
+        `<div class="bandera-det" style="font-size:12.5px; padding:4px 9px; margin-bottom:4px; border-radius:6px;
+              border-left:2px solid var(--${b.c}); background:rgba(${b.c === 'rojo' ? '240,65,60' : '240,180,41'},.11)">
+           ${escapar(b.descripcion)}
+           <span class="tenue mono" style="font-size:10.5px">${escapar(b.codigo)} · peso ${b.peso}</span>
+         </div>`).join('')}</div>` : ''}`)}
+
+    ${seccion('Sintomas reportados', lista(nar.sintomas_reportados))}
+    ${seccion('Hallazgos relevantes', lista(nar.hallazgos_relevantes))}
+    ${seccion('Temas que no se cubrieron', lista(nar.temas_no_cubiertos))}
+    ${seccion('Recomendacion para el equipo', nar.recomendacion_para_el_equipo
+      ? `<div style="font-size:13px">${escapar(nar.recomendacion_para_el_equipo)}</div>` : '')}
+    ${seccion('Se le comunico al paciente', nar.proximos_pasos_comunicados_al_paciente
+      ? `<div style="font-size:13px">${escapar(nar.proximos_pasos_comunicados_al_paciente)}</div>` : '')}
+
+    ${seccion('Evidencia citada', (res.referencias || []).length
+      ? (res.referencias || []).map(r => `<div class="cita-det" style="font-size:12.5px; padding:4px 0;
+           border-bottom:1px solid rgba(94,145,190,.1)">
+           <b>${escapar(r.documento)}</b>, pagina ${r.pagina}
+           <span class="tenue mono" style="font-size:11px">· similitud ${r.similitud}</span></div>`).join('')
+      : '<span class="vacio">El agente no cito el corpus en esta llamada.</span>')}
+
+    ${seccion('Conversacion', (d.turnos || []).map(t => `
+      <div class="turno-det ${t.hablante === 'agente' ? 'agente' : ''}">
+        <div class="quien">${t.hablante === 'agente' ? 'Sara' : 'Paciente'}</div>
+        <div>${escapar(t.texto)}</div>
+      </div>`).join(''))}`;
+
   document.getElementById('panel-detalle').scrollIntoView({ behavior: 'smooth' });
 }
 

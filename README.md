@@ -234,25 +234,44 @@ Cualquier número medido solo en el servidor sería optimista.
 **Todo lo de esta sección es la salida literal de `GET /api/metricas`.** Se puede abrir en
 el navegador y contrastar cifra a cifra; si algo no cuadra, manda el endpoint, no el README.
 
-El P50 y el P95 salen **solo de los 7 turnos de una llamada de voz real** —los únicos con
-medición cerrada en el cliente—. Los turnos escritos del campo de respaldo no entran ahí.
+El P50 y el P95 salen **solo de los 26 turnos con medición cerrada en el cliente**, todos
+de llamadas de voz reales. Los turnos escritos del campo de respaldo no entran ahí.
 
 | Métrica | Valor |
 |---|---|
-| P50 extremo a extremo | **2 520 ms** |
-| P95 extremo a extremo | **3 224 ms** |
+| P50 extremo a extremo | **5 350 ms** |
+| P95 extremo a extremo | **7 840 ms** |
 
 Desglose por etapa (mediana):
 
 | Etapa | P50 |
 |---|---:|
-| Transcripción (Whisper) | 957 ms |
-| Extracción + recuperación, en paralelo | 686 ms |
+| Transcripción (Whisper) | 2 358 ms |
+| Extracción + recuperación, en paralelo | 792 ms |
 | Triaje determinista | 0,0 ms |
-| Hasta el primer token del diálogo (TTFT) | 554 ms |
-| Generación completa del diálogo | 695 ms |
-| Total de servidor | 2 320 ms |
-| Total extremo a extremo medido en el cliente | 2 520 ms |
+| Hasta el primer token del diálogo (TTFT) | 618 ms |
+| Generación completa del diálogo | 803 ms |
+| Total de servidor | 4 507 ms |
+| Total extremo a extremo medido en el cliente | 5 350 ms |
+
+**La transcripción domina el turno, y por eso el P50 varía tanto entre sesiones.** El
+desglose por llamada lo deja claro:
+
+| Sesión | Transcripción | Extracción+RAG | Respuesta | Total en cliente |
+|---|---:|---:|---:|---:|
+| Frases cortas | 957 ms | 625 ms | 695 ms | **2 520 ms** |
+| Frases largas | 3 180 ms | 700 ms | 716 ms | **5 367 ms** |
+| Frases largas | 3 567 ms | 644 ms | 1 328 ms | **5 999 ms** |
+
+Todas las etapas del servidor se mantienen estables; la única que se dispara es Whisper,
+cuyo tiempo escala con la duración del audio. El tiempo no medido —la diferencia entre el
+total de servidor y la suma de sus etapas— es de unos 180 ms en las tres, así que **no hay
+reintentos ni esperas de cuota detrás de la diferencia**: es sencillamente que un paciente
+que habla más tarda más en ser transcrito.
+
+Se reporta el agregado, que es lo que devuelve el endpoint, y no la mejor de las sesiones.
+Reducirlo pasa por trocear el audio y transcribir mientras el paciente habla, en vez de
+esperar a que termine; está en la lista de §10 del informe.
 
 La transcripción se mediana solo sobre turnos que de verdad transcribieron: un turno
 escrito no tarda cero milisegundos en transcribir, es que no transcribe, y contarlo como
@@ -261,28 +280,29 @@ un error: son comparaciones contra umbrales sobre una estructura ya en memoria.
 
 ### Consumo
 
-Muestra: **22 turnos en 3 llamadas**; de ellos **14 turnos en 2 llamadas** traen el reparto
-de tokens por modelo, que son los que sostienen el costo.
+Muestra: **50 turnos en 7 llamadas**; de ellos **42 turnos** traen el reparto de tokens por
+modelo, que son los que sostienen el costo.
 
 | Métrica | Valor |
 |---|---|
-| Tokens de entrada / salida por turno | 3 743 / 235 |
-| Tokens de entrada / salida por llamada | 27 446 / 1 724 |
-| Invocaciones al modelo por turno | 2,41 |
-| Consultas al RAG por llamada | 6,0 (sobre 7,3 turnos de media) |
+| Tokens de entrada / salida por turno | 3 972 / 233 |
+| Tokens de entrada / salida por llamada | 28 374 / 1 665 |
+| Invocaciones al modelo por turno | 2,40 |
+| Consultas al RAG por llamada | 5,14 (sobre 7,1 turnos de media) |
 
 Las invocaciones por turno no son un número entero porque la segunda opinión solo corre
-cuando la extracción cambió algo del estado. Y las consultas al RAG no son una por turno a
-propósito: se consulta el corpus cuando el paciente pregunta algo o cuando hay una bandera
-que sustentar, no cuando dice "sí" o "ahí vamos"
+cuando la extracción cambió algo del estado, y ni siquiera entonces si no hay ninguna
+bandera que reponderar. Y las consultas al RAG no son una por turno a propósito: se
+consulta el corpus cuando el paciente pregunta algo o cuando hay una bandera que sustentar,
+no cuando dice "sí" o "ahí vamos"
 ([`conversation._recuperar`](app/agent/conversation.py)).
 
 ### Costo por llamada
 
 | Métrica | Valor |
 |---|---|
-| Costo por turno | US$ 0,00166 |
-| **Costo estimado por llamada** | **US$ 0,0116** |
+| Costo por turno | US$ 0,00182 |
+| **Costo estimado por llamada** | **US$ 0,0130** |
 | Transcripción, aparte | US$ 0,00007 por turno de ~6 s de audio |
 
 **Cómo se calcula.** El nivel gratuito de Groq no cobra, así que se extrapola a precios

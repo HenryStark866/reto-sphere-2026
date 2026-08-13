@@ -22,14 +22,23 @@
    =========================================================================== */
 
 /* --------------------------------------------------------------- estructura */
-body { overflow: hidden; }        /* una sola barra de desplazamiento, la de main */
+/* El alto se reparte, no se resta a mano. `calc(100vh - 43px)` daba por hecho
+   que la cabecera mide 43 px; medida, empezaba en 170, y `main` se salia 127 px
+   por debajo arrastrando consigo el boton de finalizar. Con el `body` como
+   columna flexible, `main` se queda exactamente con el hueco que sobre, mida lo
+   que mida la cabecera y en cualquier resolucion. */
+body {
+  height: 100vh; overflow: hidden;   /* una sola barra de desplazamiento, la de main */
+  display: flex; flex-direction: column;
+}
+header.barra { flex: none; }
 
 /* El desplazamiento vive en `main`, no en el `body`: si lo llevara el body, el
    resumen que aparece al cerrar la llamada quedaria fuera de pantalla y sin
    forma de llegar a el, y `scrollIntoView` no tendria donde desplazarse. */
 main {
   padding: 12px 16px;
-  height: calc(100vh - 43px); overflow-y: auto;
+  flex: 1 1 auto; min-height: 0; overflow-y: auto;
   display: flex; flex-direction: column;
 }
 .panel { padding: 12px 14px; margin-bottom: 12px; }
@@ -45,20 +54,37 @@ main {
 /* ------------------------------------------------------------------ columnas */
 /* La altura se reparte, no se calcula a mano: `main` es una columna flexible y
    esta rejilla se queda con lo que sobre despues de la barra de preparacion,
-   este plegada o no. Restar un numero fijo fallaba por 40 px con la barra
-   desplegada. No encoge (`flex-shrink: 0`) para que al aparecer el resumen sea
-   `main` quien desplace, y no las columnas quienes se aplasten. */
+   este plegada o no.
+
+   `flex: 1 1 auto` con `min-height: 0` es lo que mantiene el boton de finalizar
+   dentro de la pantalla. Con `flex-shrink: 0` la rejilla no encogia: la
+   transcripcion crecia con cada turno y empujaba el panel del microfono fuera
+   de la ventana -medido, a 1155 px en una ventana de 720-, dejando el boton de
+   finalizar inalcanzable justo al final de la llamada. Ahora la rejilla se
+   ajusta al hueco disponible y quien desplaza es la transcripcion por dentro. */
 .columnas {
   display: grid; grid-template-columns: 1fr 372px; gap: 12px; align-items: stretch;
-  flex: 1 0 auto; min-height: 430px;
+  flex: 1 1 auto; min-height: 0;
+  /* `minmax(0, 1fr)` y no `auto`: una fila `auto` se niega a encoger por debajo
+     de su contenido, asi que la columna derecha -que lleva cuatro paneles-
+     estiraba la rejilla y volvia a empujar el boton de finalizar fuera de la
+     ventana, aunque el contenedor si tuviera permiso para encoger. */
+  grid-template-rows: minmax(0, 1fr);
 }
+/* `min-height: 0` en las columnas y en el panel de la conversacion: sin eso un
+   elemento flexible se niega a encoger por debajo del tamano de su contenido, y
+   la regla de arriba no serviria de nada. */
 .columnas > div { display: flex; flex-direction: column; min-height: 0; }
 .columnas > div:last-child { overflow-y: auto; padding-right: 4px; }
-.columnas > div:first-child > .panel:first-child { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.columnas > div:first-child > .panel:first-child { flex: 1 1 auto; min-height: 120px; display: flex; flex-direction: column; }
+/* El panel del microfono y los botones no encogen nunca: son el control de la
+   llamada y tienen que estar siempre a la vista. */
+.columnas > div:first-child > .panel:last-child { flex: none; }
 .columnas > div:last-child > .panel:last-child { margin-bottom: 0; }
 @media (max-width: 1100px) {
-  .columnas { grid-template-columns: 1fr; height: auto; }
+  .columnas { grid-template-columns: 1fr; }
   body { overflow: auto; }
+  main { height: auto; overflow: visible; }
 }
 
 /* -------------------------------------------------------------- conversacion */
