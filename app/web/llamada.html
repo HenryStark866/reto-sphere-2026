@@ -313,6 +313,8 @@ const S = {
   vozAgente: null,
   colaVoz: 0,
   burbujaAgente: null,
+  yaHablo: false,      // la primera frase del turno ya salio por el altavoz
+  restoPorHablar: '',  // el resto se acumula y se dice de corrido
 };
 
 const ETIQUETAS = {
@@ -589,6 +591,8 @@ async function enviarFormulario(cuerpo) {
   S.msPrimeraVoz = null;
   S.turnoFin = null;
   S.burbujaAgente = null;
+  S.yaHablo = false;
+  S.restoPorHablar = '';
   pintarBoton();
   limpiarAvisos();
 
@@ -651,11 +655,20 @@ function manejarEvento(ev) {
       break;
 
     case 'frase':
-      hablar(ev.texto);
+      // Solo la primera frase se locuta al vuelo: es la que gana la latencia,
+      // porque el navegador empieza a hablar mientras el modelo aun genera. El
+      // resto se acumula y se dice en una sola locucion al cerrar el turno.
+      // Encolar una locucion por frase sonaba entrecortado: el navegador mete
+      // una pausa perceptible entre locuciones, y una respuesta de dos frases
+      // se oia partida en dos.
+      if (!S.yaHablo) { S.yaHablo = true; hablar(ev.texto); }
+      else { S.restoPorHablar += (S.restoPorHablar ? ' ' : '') + ev.texto; }
       acumularAgente(ev.texto);
       break;
 
     case 'fin':
+      // El resto del texto va aqui, ya completo, en una sola locucion continua.
+      if (S.restoPorHablar.trim()) { hablar(S.restoPorHablar.trim()); S.restoPorHablar = ''; }
       // Primero las metricas del turno: reportarLatencia las complementa y no
       // debe quedar pisada por ellas.
       pintarMetricas(ev.metricas);
@@ -764,6 +777,7 @@ async function finalizar() {
   detenerGrabacion();
   speechSynthesis.cancel();
   S.colaVoz = 0;
+  S.restoPorHablar = '';
 
   const r = await fetch(`/api/llamadas/${S.llamadaId}/cierre`, { method: 'POST' });
   const d = await r.json();
